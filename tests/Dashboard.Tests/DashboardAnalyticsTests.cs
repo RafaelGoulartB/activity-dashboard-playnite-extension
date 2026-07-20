@@ -38,6 +38,23 @@ namespace Dashboard.Tests
         }
 
         [Test]
+        public void Build_ReturnsTheTopTwentyGamesByPlaytime()
+        {
+            var games = Enumerable.Range(1, 25)
+                .Select(index => new GameSnapshot
+                {
+                    Name = "Game " + index.ToString("D2"),
+                    PlaytimeSeconds = (ulong)index
+                });
+
+            var metrics = new DashboardAnalytics().Build(games, new ActivitySession[0], new DateTime(2026, 7, 20));
+
+            Assert.AreEqual(20, metrics.TopGames.Count);
+            Assert.AreEqual("Game 25", metrics.TopGames[0].Name);
+            Assert.AreEqual("Game 06", metrics.TopGames[19].Name);
+        }
+
+        [Test]
         public void BuildHeatmap_SplitsASessionAcrossMidnight()
         {
             var session = new ActivitySession

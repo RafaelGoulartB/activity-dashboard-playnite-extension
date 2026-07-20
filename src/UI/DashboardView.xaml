@@ -49,7 +49,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="9">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#5A75F2D9" /></Trigger>
@@ -218,16 +218,18 @@
                     <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Style="{StaticResource SectionSurface}" Margin="0,0,14,0">
                         <StackPanel>
-                            <DockPanel Margin="0,0,0,15"><TextBlock Style="{StaticResource SectionTitle}" Text="Most played games" /><TextBlock DockPanel.Dock="Right" Text="TOP 5" Foreground="#FF82A9FF" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></DockPanel>
-                            <ItemsControl ItemsSource="{Binding TopGames}">
-                                <ItemsControl.ItemTemplate><DataTemplate>
-                                    <Border Style="{StaticResource RankRow}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="35" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                        <Border Width="30" Height="36" CornerRadius="7" ClipToBounds="True"><Image Source="{Binding CoverPath}" Stretch="UniformToFill" /></Border>
-                                        <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#FFF2F5FB" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="9,0,8,0" />
-                                        <TextBlock Grid.Column="2" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF9FBBFF" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                    </Grid></Border>
-                                </DataTemplate></ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <DockPanel Margin="0,0,0,15"><TextBlock Style="{StaticResource SectionTitle}" Text="Most played games" /><TextBlock DockPanel.Dock="Right" Text="TOP 20" Foreground="#FF82A9FF" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></DockPanel>
+                            <ScrollViewer Height="295" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                <ItemsControl ItemsSource="{Binding TopGames}">
+                                    <ItemsControl.ItemTemplate><DataTemplate>
+                                        <Border Style="{StaticResource RankRow}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="35" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                            <Border Width="30" Height="36" CornerRadius="7" ClipToBounds="True"><Image Source="{Binding CoverPath}" Stretch="UniformToFill" /></Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#FFF2F5FB" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="9,0,8,0" />
+                                            <TextBlock Grid.Column="2" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF9FBBFF" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                        </Grid></Border>
+                                    </DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="1" Style="{StaticResource SectionSurface}" Margin="0,0,14,0">

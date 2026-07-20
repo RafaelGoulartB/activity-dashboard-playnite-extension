@@ -22,7 +22,7 @@ namespace ActivityDashboard.Services
             metrics.HeatmapDays = BuildHeatmap(sessionList, todayLocal);
             metrics.TopGames = gameList.OrderByDescending(game => game.PlaytimeSeconds)
                 .ThenBy(game => game.Name)
-                .Take(5)
+                .Take(20)
                 .Select(game => new RankedItem { Name = game.Name, CoverPath = game.CoverPath, DurationSeconds = game.PlaytimeSeconds })
                 .ToList();
             metrics.Platforms = BuildBreakdown(gameList, game => game.Platforms, "Uncategorized platform");
