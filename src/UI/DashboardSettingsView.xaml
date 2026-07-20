@@ -4,9 +4,8 @@
              Background="Transparent">
     <StackPanel Margin="18">
         <TextBlock Text="Activity Dashboard" FontSize="22" FontWeight="SemiBold" Foreground="White" />
-        <TextBlock Text="O histórico do dashboard é armazenado separadamente da biblioteca do Playnite." TextWrapping="Wrap" Foreground="#CFFFFFFF" Margin="0,8,0,16" />
-        <Button Content="Limpar histórico rastreado" HorizontalAlignment="Left" Padding="14,7" Click="ClearHistory_Click" />
+        <TextBlock Text="Dashboard history is stored separately from your Playnite library." TextWrapping="Wrap" Foreground="#CFFFFFFF" Margin="0,8,0,16" />
+        <Button Content="Clear tracked history" HorizontalAlignment="Left" Padding="14,7" Click="ClearHistory_Click" />
         <TextBlock x:Name="StatusText" Foreground="#9EE6FFE6" Margin="0,10,0,0" />
     </StackPanel>
 </UserControl>
-

@@ -37,7 +37,7 @@ namespace ActivityDashboard.UI
             Genres = new ObservableCollection<RankedItem>();
             RecentSessions = new ObservableCollection<ActivitySession>();
             HourlyActivity = new ObservableCollection<HourlyActivity>();
-            PeakHour = "Ainda sem dados";
+            PeakHour = "No data yet";
             TrackedPlaytime = "0min";
             TotalPlaytime = "—";
             GamesPlayed = "—";
@@ -77,7 +77,7 @@ namespace ActivityDashboard.UI
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Não foi possível carregar o dashboard: " + ex.Message;
+                ErrorMessage = "The dashboard could not be loaded: " + ex.Message;
             }
             finally
             {
@@ -113,7 +113,7 @@ namespace ActivityDashboard.UI
             Replace(HeatmapCells, BuildCells(metrics.HeatmapDays));
             HourlyActivity = new ObservableCollection<HourlyActivity>(metrics.HourlyActivity);
             var busiestHour = metrics.HourlyActivity.OrderByDescending(hour => hour.DurationSeconds).ThenBy(hour => hour.Hour).FirstOrDefault();
-            PeakHour = busiestHour == null || busiestHour.DurationSeconds == 0 ? "Ainda sem dados" : string.Format("{0:D2}h — {1}", busiestHour.Hour, DurationFormatter.Format(busiestHour.DurationSeconds));
+            PeakHour = busiestHour == null || busiestHour.DurationSeconds == 0 ? "No data yet" : string.Format("{0:D2}:00 — {1}", busiestHour.Hour, DurationFormatter.Format(busiestHour.DurationSeconds));
             TrackedPlaytime = DurationFormatter.Format(metrics.HourlyActivity.Aggregate(0UL, (total, hour) => total + hour.DurationSeconds));
             OnPropertyChanged("HasSessions");
         }
@@ -131,7 +131,7 @@ namespace ActivityDashboard.UI
                     var day = lookup[date];
                     cells.Add(new HeatmapCell
                     {
-                        Tooltip = string.Format("{0:dd/MM/yyyy}: {1} em {2} sessão(ões)", day.Date, DurationFormatter.Format(day.DurationSeconds), day.SessionCount),
+                        Tooltip = string.Format("{0:MMM dd, yyyy}: {1} across {2} session(s)", day.Date, DurationFormatter.Format(day.DurationSeconds), day.SessionCount),
                         Background = HeatmapBrush(day.IntensityLevel)
                     });
                 }

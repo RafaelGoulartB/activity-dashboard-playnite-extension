@@ -16,15 +16,14 @@ namespace ActivityDashboard.UI
 
         private void ClearHistory_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Remover todas as sessões registradas pelo Activity Dashboard? Os dados da biblioteca Playnite não serão alterados.", "Limpar histórico", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var result = MessageBox.Show("Remove every session tracked by Activity Dashboard? Your Playnite library data will not be changed.", "Clear tracked history", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result != MessageBoxResult.Yes)
             {
                 return;
             }
 
             store.ClearHistory();
-            StatusText.Text = "Histórico rastreado removido.";
+            StatusText.Text = "Tracked history cleared.";
         }
     }
 }
-

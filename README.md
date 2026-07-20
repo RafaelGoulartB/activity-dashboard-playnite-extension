@@ -1,23 +1,25 @@
 # Activity Dashboard
 
-Extensão para Playnite 6 que adiciona à sidebar um painel de atividade da biblioteca.
+A Playnite 6 extension that adds a personal activity dashboard to the sidebar.
 
-## Recursos
+## Features
 
-- Heatmap dos últimos 52 semanas, calculado a partir de sessões rastreadas.
-- Tempo total, jogos jogados, inicializações e atividade dos últimos 30 dias do Playnite.
-- Rankings de jogos, plataformas e gêneros.
-- Lista das sessões recentes e opção para apagar somente o histórico da extensão.
+- A 52-week heatmap generated from tracked game sessions.
+- A 24-hour radial chart that highlights your preferred gaming hours.
+- Total playtime, played games, launches, and games active in the past 30 days.
+- Rankings for games, platforms, and genres.
+- Recent session history and an option to clear only the extension's tracked data.
 
-## Histórico de sessões
+## Session history
 
-O Playnite oferece os totais e a última atividade dos jogos, mas não expõe o histórico completo de sessões. Por isso, o heatmap começa a registrar dados quando a extensão é instalada. Os cartões e rankings continuam usando o histórico total já disponível na biblioteca.
+Playnite exposes game totals and last activity, but not the complete session history. The heatmap and hourly chart therefore start recording after the extension is installed. Dashboard cards and rankings still use the full playtime already available in the Playnite library.
 
-## Desenvolvimento
+## Development
 
 ```powershell
 dotnet build src/Dashboard.csproj
 dotnet test tests/Dashboard.Tests/Dashboard.Tests.csproj
 ```
 
-Copie `Dashboard.dll` e suas dependências, junto de `extension.yaml`, para a pasta de extensões do Playnite.
+Copy `Dashboard.dll` and its dependencies, together with `extension.yaml`, to the Playnite extensions folder.
+

@@ -74,7 +74,7 @@ namespace ActivityDashboard.UI
 
             if (maximum == 0)
             {
-                DrawCenteredText(drawingContext, "Sem sessões", new Point(center.X, center.Y + 18), 10, new SolidColorBrush(Color.FromRgb(156, 174, 197)), FontWeights.Normal);
+                DrawCenteredText(drawingContext, "No sessions", new Point(center.X, center.Y + 18), 10, new SolidColorBrush(Color.FromRgb(156, 174, 197)), FontWeights.Normal);
             }
         }
 
@@ -94,7 +94,7 @@ namespace ActivityDashboard.UI
             if (degrees < 0) degrees += 360;
             var hour = ((int)Math.Floor((degrees + 7.5) / 15)) % 24;
             var data = hours.FirstOrDefault(item => item.Hour == hour) ?? new HourlyActivity { Hour = hour };
-            ToolTip = string.Format("{0:D2}:00 – {1:D2}:59\n{2} em {3} sessão(ões)", hour, hour, DurationFormatter.Format(data.DurationSeconds), data.SessionCount);
+            ToolTip = string.Format("{0:D2}:00 – {1:D2}:59\n{2} across {3} session(s)", hour, hour, DurationFormatter.Format(data.DurationSeconds), data.SessionCount);
         }
 
         private static Geometry CreateWedge(Point center, double innerRadius, double outerRadius, double startAngle, double endAngle)
