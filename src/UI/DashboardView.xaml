@@ -114,38 +114,10 @@
                 <TextBlock Text="Loading Playnite data..." Foreground="#FF9DF1D5" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="4,0,0,12" />
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="#FFFF9C9C" TextWrapping="Wrap" Margin="4,0,0,12" />
 
-                <!-- Metrics -->
-                <Grid Margin="0,0,0,22">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource MetricCard}" Margin="0,0,14,0">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="TOTAL PLAYTIME" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalPlaytime}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#355E79F5" CornerRadius="10"><TextBlock Text="◷" FontSize="21" Foreground="#FFD9E3FF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0,0,14,0">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="GAMES PLAYED" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding GamesPlayed}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#3545C9A6" CornerRadius="10"><TextBlock Text="◆" FontSize="17" Foreground="#FFD6FFF4" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="2" Style="{StaticResource MetricCard}" Margin="0,0,14,0">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="GAME LAUNCHES" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalLaunches}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#35E9A34D" CornerRadius="10"><TextBlock Text="▶" FontSize="16" Foreground="#FFFFEDCF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="3" Style="{StaticResource MetricCard}" Margin="0">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="ACTIVE IN 30 DAYS" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding RecentGames}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#35CC60B5" CornerRadius="10"><TextBlock Text="✦" FontSize="19" Foreground="#FFFFD9F5" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                </Grid>
-
                 <!-- Adaptive activity visualizations -->
                 <local:AdaptiveTwoColumnPanel Margin="0,0,0,18" Breakpoint="1500" Gap="18">
-                <!-- Heatmap -->
+                <!-- Heatmap and metrics -->
+                <StackPanel>
                 <Border x:Name="HeatmapSection" Style="{StaticResource SectionSurface}">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
@@ -186,6 +158,36 @@
                         </DockPanel>
                     </Grid>
                 </Border>
+
+                <Grid Margin="0,18,0,0">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource MetricCard}" Margin="0,0,14,14">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="TOTAL PLAYTIME" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalPlaytime}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                            <Border Grid.Column="1" Width="38" Height="38" Background="#355E79F5" CornerRadius="10"><TextBlock Text="&#x25F7;" FontSize="21" Foreground="#FFD9E3FF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0,0,0,14">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="GAMES PLAYED" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding GamesPlayed}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                            <Border Grid.Column="1" Width="38" Height="38" Background="#3545C9A6" CornerRadius="10"><TextBlock Text="&#x25C6;" FontSize="17" Foreground="#FFD6FFF4" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Style="{StaticResource MetricCard}" Margin="0,0,14,0">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="GAME LAUNCHES" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalLaunches}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                            <Border Grid.Column="1" Width="38" Height="38" Background="#35E9A34D" CornerRadius="10"><TextBlock Text="&#x25B6;" FontSize="16" Foreground="#FFFFEDCF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="ACTIVE IN 30 DAYS" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding RecentGames}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                            <Border Grid.Column="1" Width="38" Height="38" Background="#35CC60B5" CornerRadius="10"><TextBlock Text="&#x2726;" FontSize="19" Foreground="#FFFFD9F5" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+                </StackPanel>
 
                 <!-- Hourly radial activity chart -->
                 <Border Style="{StaticResource SectionSurface}">
