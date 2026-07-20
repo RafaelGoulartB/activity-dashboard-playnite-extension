@@ -143,8 +143,10 @@
                     </Border>
                 </Grid>
 
+                <!-- Adaptive activity visualizations -->
+                <local:AdaptiveTwoColumnPanel Margin="0,0,0,18" Breakpoint="1500" Gap="18">
                 <!-- Heatmap -->
-                <Border x:Name="HeatmapSection" Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
+                <Border x:Name="HeatmapSection" Style="{StaticResource SectionSurface}">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -185,6 +187,32 @@
                     </Grid>
                 </Border>
 
+                <!-- Hourly radial activity chart -->
+                <Border Style="{StaticResource SectionSurface}">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="0.8*" /><ColumnDefinition Width="1.2*" /></Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Margin="8,8,26,8">
+                            <Border Background="#2B8A66E8" BorderBrush="#5A8E7BFF" BorderThickness="1" CornerRadius="7" Padding="10,5" HorizontalAlignment="Left" Margin="0,0,0,16">
+                                <TextBlock Text="DAILY PATTERN" Foreground="#FFD8E3FF" FontSize="10" FontWeight="Bold" />
+                            </Border>
+                            <TextBlock Text="Your rhythm throughout the day" Foreground="#FFF7FAFF" FontSize="25" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Text="Discover which hours you most often launch games from Playnite." Foreground="#FFAFBDD1" FontSize="14" LineHeight="21" TextWrapping="Wrap" Margin="0,10,0,24" />
+                            <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,0,10">
+                                <StackPanel><TextBlock Text="MOST ACTIVE HOUR" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding PeakHour}" Foreground="#FFE6A7FF" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
+                            </Border>
+                            <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15">
+                                <StackPanel><TextBlock Text="TRACKED PLAYTIME" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TrackedPlaytime}" Foreground="#FF8CE7D2" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Margin="0,22,0,0"><Border Width="10" Height="10" Background="#FF4CBCE8" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Late night" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FF9B73DF" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Daytime" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FFE06BC6" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Evening" Foreground="#FF9EB0C8" FontSize="11" /></StackPanel>
+                        </StackPanel>
+                        <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Width="496" Height="496" Background="#2810172A" BorderBrush="#274B5E7A" BorderThickness="1" CornerRadius="248" />
+                            <local:HourlyActivityChart Width="496" Height="496" ItemsSource="{Binding HourlyActivity}" />
+                        </Grid>
+                    </Grid>
+                </Border>
+                </local:AdaptiveTwoColumnPanel>
+
                 <!-- Library insights -->
                 <Grid Margin="0,0,0,18">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
@@ -219,31 +247,6 @@
                         </StackPanel>
                     </Border>
                 </Grid>
-
-                <!-- Hourly radial activity chart -->
-                <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="0.8*" /><ColumnDefinition Width="1.2*" /></Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center" Margin="8,8,26,8">
-                            <Border Background="#2B8A66E8" BorderBrush="#5A8E7BFF" BorderThickness="1" CornerRadius="7" Padding="10,5" HorizontalAlignment="Left" Margin="0,0,0,16">
-                                <TextBlock Text="DAILY PATTERN" Foreground="#FFD8E3FF" FontSize="10" FontWeight="Bold" />
-                            </Border>
-                            <TextBlock Text="Your rhythm throughout the day" Foreground="#FFF7FAFF" FontSize="25" FontWeight="SemiBold" TextWrapping="Wrap" />
-                            <TextBlock Text="Discover which hours you most often launch games from Playnite." Foreground="#FFAFBDD1" FontSize="14" LineHeight="21" TextWrapping="Wrap" Margin="0,10,0,24" />
-                            <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,0,10">
-                                <StackPanel><TextBlock Text="MOST ACTIVE HOUR" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding PeakHour}" Foreground="#FFE6A7FF" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
-                            </Border>
-                            <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15">
-                                <StackPanel><TextBlock Text="TRACKED PLAYTIME" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TrackedPlaytime}" Foreground="#FF8CE7D2" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
-                            </Border>
-                            <StackPanel Orientation="Horizontal" Margin="0,22,0,0"><Border Width="10" Height="10" Background="#FF4CBCE8" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Late night" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FF9B73DF" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Daytime" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FFE06BC6" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Evening" Foreground="#FF9EB0C8" FontSize="11" /></StackPanel>
-                        </StackPanel>
-                        <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Border Width="496" Height="496" Background="#2810172A" BorderBrush="#274B5E7A" BorderThickness="1" CornerRadius="248" />
-                            <local:HourlyActivityChart Width="496" Height="496" ItemsSource="{Binding HourlyActivity}" />
-                        </Grid>
-                    </Grid>
-                </Border>
 
                 <!-- Recent activity -->
                 <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,12">
