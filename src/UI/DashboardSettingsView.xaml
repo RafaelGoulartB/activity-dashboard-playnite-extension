@@ -1,0 +1,12 @@
+<UserControl x:Class="ActivityDashboard.UI.DashboardSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    <StackPanel Margin="18">
+        <TextBlock Text="Activity Dashboard" FontSize="22" FontWeight="SemiBold" Foreground="White" />
+        <TextBlock Text="O histórico do dashboard é armazenado separadamente da biblioteca do Playnite." TextWrapping="Wrap" Foreground="#CFFFFFFF" Margin="0,8,0,16" />
+        <Button Content="Limpar histórico rastreado" HorizontalAlignment="Left" Padding="14,7" Click="ClearHistory_Click" />
+        <TextBlock x:Name="StatusText" Foreground="#9EE6FFE6" Margin="0,10,0,0" />
+    </StackPanel>
+</UserControl>
+
