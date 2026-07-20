@@ -7,6 +7,7 @@
     <UserControl.Resources>
         <local:DurationToTextConverter x:Key="DurationToTextConverter" />
         <local:HeatmapHeightConverter x:Key="HeatmapHeightConverter" />
+        <local:HeatmapWidthConverter x:Key="HeatmapWidthConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DropShadowEffect x:Key="PanelShadow" BlurRadius="18" ShadowDepth="5" Opacity="0.32" Color="#000000" />
@@ -143,7 +144,7 @@
                 </Grid>
 
                 <!-- Heatmap -->
-                <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
+                <Border x:Name="HeatmapSection" Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
                     <Grid>
                         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
@@ -155,21 +156,23 @@
                             <TextBlock Text="TRACKED SESSIONS" Foreground="#FFACEDE0" FontSize="10" FontWeight="Bold" />
                         </Border>
 
-                        <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="0,22,0,16">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="34" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0">
-                                <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Text="MON" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="2" Text="WED" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="4" Text="FRI" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                        <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" Margin="0,22,0,16" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <Grid Width="{Binding ActualWidth, ElementName=HeatmapSection, Converter={StaticResource HeatmapWidthConverter}}" HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="34" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Text="MON" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="2" Text="WED" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="4" Text="FRI" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                                </Grid>
+                                <ItemsControl Grid.Column="1" ItemsSource="{Binding HeatmapCells}" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}, Converter={StaticResource HeatmapHeightConverter}}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="7" Columns="52" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate><DataTemplate>
+                                        <Border Margin="2" Background="{Binding Background}" ToolTip="{Binding Tooltip}" CornerRadius="3" BorderBrush="#1AFFFFFF" BorderThickness="1" />
+                                    </DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </Grid>
-                            <ItemsControl Grid.Column="1" ItemsSource="{Binding HeatmapCells}" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}, Converter={StaticResource HeatmapHeightConverter}}">
-                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="7" Columns="52" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate><DataTemplate>
-                                    <Border Margin="2" Background="{Binding Background}" ToolTip="{Binding Tooltip}" CornerRadius="3" BorderBrush="#1AFFFFFF" BorderThickness="1" />
-                                </DataTemplate></ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
+                        </ScrollViewer>
 
                         <DockPanel Grid.Row="2" Grid.ColumnSpan="2">
                             <TextBlock Text="The heatmap starts recording after the extension is installed." Foreground="#809EB1C5" FontSize="11" />
