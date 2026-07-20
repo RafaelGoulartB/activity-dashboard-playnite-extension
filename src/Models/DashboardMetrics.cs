@@ -12,6 +12,7 @@ namespace ActivityDashboard.Models
             Platforms = new List<RankedItem>();
             Genres = new List<RankedItem>();
             RecentSessions = new List<ActivitySession>();
+            HourlyActivity = new List<HourlyActivity>();
         }
 
         public ulong TotalPlaytimeSeconds { get; set; }
@@ -23,6 +24,7 @@ namespace ActivityDashboard.Models
         public List<RankedItem> Platforms { get; set; }
         public List<RankedItem> Genres { get; set; }
         public List<ActivitySession> RecentSessions { get; set; }
+        public List<HourlyActivity> HourlyActivity { get; set; }
     }
 
     public class HeatmapDay
@@ -39,5 +41,11 @@ namespace ActivityDashboard.Models
         public string CoverPath { get; set; }
         public ulong DurationSeconds { get; set; }
     }
-}
 
+    public class HourlyActivity
+    {
+        public int Hour { get; set; }
+        public ulong DurationSeconds { get; set; }
+        public int SessionCount { get; set; }
+    }
+}

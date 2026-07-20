@@ -23,6 +23,9 @@ namespace ActivityDashboard.UI
         private string gamesPlayed;
         private string totalLaunches;
         private string recentGames;
+        private string peakHour;
+        private string trackedPlaytime;
+        private ObservableCollection<HourlyActivity> hourlyActivity;
 
         public DashboardViewModel(IPlayniteAPI api, IActivityStore store)
         {
@@ -33,6 +36,9 @@ namespace ActivityDashboard.UI
             Platforms = new ObservableCollection<RankedItem>();
             Genres = new ObservableCollection<RankedItem>();
             RecentSessions = new ObservableCollection<ActivitySession>();
+            HourlyActivity = new ObservableCollection<HourlyActivity>();
+            PeakHour = "Ainda sem dados";
+            TrackedPlaytime = "0min";
             TotalPlaytime = "—";
             GamesPlayed = "—";
             TotalLaunches = "—";
@@ -46,6 +52,7 @@ namespace ActivityDashboard.UI
         public ObservableCollection<RankedItem> Platforms { get; private set; }
         public ObservableCollection<RankedItem> Genres { get; private set; }
         public ObservableCollection<ActivitySession> RecentSessions { get; private set; }
+        public ObservableCollection<HourlyActivity> HourlyActivity { get { return hourlyActivity; } private set { SetField(ref hourlyActivity, value); } }
 
         public bool IsLoading { get { return isLoading; } private set { SetField(ref isLoading, value); } }
         public string ErrorMessage { get { return errorMessage; } private set { SetField(ref errorMessage, value); } }
@@ -54,6 +61,8 @@ namespace ActivityDashboard.UI
         public string TotalLaunches { get { return totalLaunches; } private set { SetField(ref totalLaunches, value); } }
         public string RecentGames { get { return recentGames; } private set { SetField(ref recentGames, value); } }
         public bool HasSessions { get { return RecentSessions.Count > 0; } }
+        public string PeakHour { get { return peakHour; } private set { SetField(ref peakHour, value); } }
+        public string TrackedPlaytime { get { return trackedPlaytime; } private set { SetField(ref trackedPlaytime, value); } }
 
         public async Task RefreshAsync()
         {
@@ -102,6 +111,10 @@ namespace ActivityDashboard.UI
             Replace(Genres, metrics.Genres);
             Replace(RecentSessions, metrics.RecentSessions);
             Replace(HeatmapCells, BuildCells(metrics.HeatmapDays));
+            HourlyActivity = new ObservableCollection<HourlyActivity>(metrics.HourlyActivity);
+            var busiestHour = metrics.HourlyActivity.OrderByDescending(hour => hour.DurationSeconds).ThenBy(hour => hour.Hour).FirstOrDefault();
+            PeakHour = busiestHour == null || busiestHour.DurationSeconds == 0 ? "Ainda sem dados" : string.Format("{0:D2}h — {1}", busiestHour.Hour, DurationFormatter.Format(busiestHour.DurationSeconds));
+            TrackedPlaytime = DurationFormatter.Format(metrics.HourlyActivity.Aggregate(0UL, (total, hour) => total + hour.DurationSeconds));
             OnPropertyChanged("HasSessions");
         }
 
@@ -175,4 +188,3 @@ namespace ActivityDashboard.UI
         public Brush Background { get; set; }
     }
 }
-

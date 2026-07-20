@@ -54,6 +54,25 @@ namespace Dashboard.Tests
             Assert.AreEqual(3600UL, days.Single(day => day.Date == new DateTime(2026, 7, 20)).DurationSeconds);
             Assert.AreEqual(DayOfWeek.Monday, days.First().Date.DayOfWeek);
         }
+
+        [Test]
+        public void BuildHourlyActivity_SplitsSessionsAtHourBoundaries()
+        {
+            var session = new ActivitySession
+            {
+                StartedAtLocal = new DateTimeOffset(2026, 7, 20, 22, 30, 0, TimeSpan.Zero),
+                EndedAtLocal = new DateTimeOffset(2026, 7, 21, 1, 15, 0, TimeSpan.Zero),
+                DurationSeconds = 9900
+            };
+
+            var hours = new DashboardAnalytics().BuildHourlyActivity(new[] { session });
+
+            Assert.AreEqual(24, hours.Count);
+            Assert.AreEqual(1800UL, hours[22].DurationSeconds);
+            Assert.AreEqual(3600UL, hours[23].DurationSeconds);
+            Assert.AreEqual(3600UL, hours[0].DurationSeconds);
+            Assert.AreEqual(900UL, hours[1].DurationSeconds);
+            Assert.AreEqual(0UL, hours[2].DurationSeconds);
+        }
     }
 }
-

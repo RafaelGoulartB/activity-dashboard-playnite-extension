@@ -28,7 +28,40 @@ namespace ActivityDashboard.Services
             metrics.Platforms = BuildBreakdown(gameList, game => game.Platforms, "Sem plataforma");
             metrics.Genres = BuildBreakdown(gameList, game => game.Genres, "Sem gênero");
             metrics.RecentSessions = sessionList.OrderByDescending(session => session.EndedAtLocal).Take(10).ToList();
+            metrics.HourlyActivity = BuildHourlyActivity(sessionList);
             return metrics;
+        }
+
+        public List<HourlyActivity> BuildHourlyActivity(IEnumerable<ActivitySession> sessions)
+        {
+            var hours = Enumerable.Range(0, 24).Select(hour => new HourlyActivity { Hour = hour }).ToList();
+            foreach (var session in sessions ?? Enumerable.Empty<ActivitySession>())
+            {
+                if (session == null || session.DurationSeconds == 0)
+                {
+                    continue;
+                }
+
+                var cursor = session.StartedAtLocal.DateTime;
+                var end = session.EndedAtLocal.DateTime;
+                if (end <= cursor)
+                {
+                    end = cursor.AddSeconds(session.DurationSeconds);
+                }
+
+                while (cursor < end)
+                {
+                    var nextHour = new DateTime(cursor.Year, cursor.Month, cursor.Day, cursor.Hour, 0, 0).AddHours(1);
+                    var segmentEnd = end < nextHour ? end : nextHour;
+                    var seconds = (ulong)Math.Ceiling((segmentEnd - cursor).TotalSeconds);
+                    var hour = hours[cursor.Hour];
+                    hour.DurationSeconds += seconds;
+                    hour.SessionCount += 1;
+                    cursor = segmentEnd;
+                }
+            }
+
+            return hours;
         }
 
         public List<HeatmapDay> BuildHeatmap(IEnumerable<ActivitySession> sessions, DateTime todayLocal)
