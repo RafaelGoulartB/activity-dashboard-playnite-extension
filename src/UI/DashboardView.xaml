@@ -384,6 +384,60 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Playnite favorites -->
+                <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,18">
+                            <Border DockPanel.Dock="Right" Background="#32E9A34D" BorderBrush="#55E9A34D" BorderThickness="1" CornerRadius="8" Padding="10,5" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding FavoriteGames.Count, StringFormat={}{0} FAVORITES}" Foreground="#FFFFD79C" FontWeight="Bold" FontSize="10" />
+                            </Border>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#x2605;" Foreground="#FFFFB95E" FontSize="18" Margin="0,-2,8,0" />
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Favorite games" />
+                                </StackPanel>
+                                <TextBlock Text="Games marked as favorites in your Playnite library." Foreground="#FFAAB6CC" FontSize="12" Margin="0,5,0,0" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Grid MinHeight="132">
+                            <ScrollViewer MaxHeight="365" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                <ItemsControl ItemsSource="{Binding FavoriteGames}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate><DataTemplate>
+                                        <Border Width="275" Height="112" Background="#641E2638" BorderBrush="#34546680" BorderThickness="1" CornerRadius="11" Margin="0,0,11,11" Padding="9" ToolTip="{Binding Name}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="68" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Border Width="62" Height="92" CornerRadius="8" ClipToBounds="True" Background="#FF252D3F" HorizontalAlignment="Left">
+                                                    <Image Source="{Binding CoverPath}" Stretch="UniformToFill" />
+                                                </Border>
+                                                <Grid Grid.Column="1" Margin="11,3,3,3">
+                                                    <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding Name}" Foreground="#FFF4F7FC" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="40" VerticalAlignment="Top" Margin="0,2,8,0" />
+                                                        <TextBlock Grid.Column="1" Text="&#x2605;" Foreground="#FFFFB95E" FontSize="14" VerticalAlignment="Top" />
+                                                    </Grid>
+                                                    <Border Grid.Row="1" Background="#312D3951" CornerRadius="6" Padding="8,5" HorizontalAlignment="Left">
+                                                        <StackPanel Orientation="Horizontal"><TextBlock Text="PLAYTIME" Foreground="#FF8395AE" FontSize="9" FontWeight="Bold" Margin="0,0,7,0" VerticalAlignment="Center" /><TextBlock Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FFC6D4EB" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+                                                    </Border>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasFavoriteGames}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                                <Border Width="48" Height="48" Background="#32E9A34D" CornerRadius="24"><TextBlock Text="&#x2606;" Foreground="#FFFFC879" FontSize="27" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                <TextBlock Text="No favorite games yet" Foreground="#FFF2F5FB" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,0" />
+                                <TextBlock Text="Mark games as favorites in Playnite and refresh the dashboard." Foreground="#FF91A3BC" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
                 <!-- Recent activity -->
                 <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,12">
                     <StackPanel>

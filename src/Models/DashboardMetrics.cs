@@ -9,6 +9,7 @@ namespace ActivityDashboard.Models
         {
             HeatmapDays = new List<HeatmapDay>();
             TopGames = new List<RankedItem>();
+            FavoriteGames = new List<RankedItem>();
             Platforms = new List<RankedItem>();
             Genres = new List<RankedItem>();
             RecentSessions = new List<ActivitySession>();
@@ -21,6 +22,7 @@ namespace ActivityDashboard.Models
         public int GamesActiveLast30Days { get; set; }
         public List<HeatmapDay> HeatmapDays { get; set; }
         public List<RankedItem> TopGames { get; set; }
+        public List<RankedItem> FavoriteGames { get; set; }
         public List<RankedItem> Platforms { get; set; }
         public List<RankedItem> Genres { get; set; }
         public List<ActivitySession> RecentSessions { get; set; }

@@ -39,6 +39,7 @@ namespace ActivityDashboard.UI
             this.store = store;
             HeatmapCells = new ObservableCollection<HeatmapCell>();
             TopGames = new ObservableCollection<RankedItem>();
+            FavoriteGames = new ObservableCollection<RankedItem>();
             FilteredTopGames = new ObservableCollection<RankedItem>();
             Platforms = new ObservableCollection<RankedItem>();
             Genres = new ObservableCollection<RankedItem>();
@@ -65,6 +66,7 @@ namespace ActivityDashboard.UI
 
         public ObservableCollection<HeatmapCell> HeatmapCells { get; private set; }
         public ObservableCollection<RankedItem> TopGames { get; private set; }
+        public ObservableCollection<RankedItem> FavoriteGames { get; private set; }
         public ObservableCollection<RankedItem> FilteredTopGames { get; private set; }
         public ObservableCollection<PlaytimePeriod> PlaytimePeriods { get; private set; }
         public ObservableCollection<RankedItem> Platforms { get; private set; }
@@ -80,6 +82,7 @@ namespace ActivityDashboard.UI
         public string RecentGames { get { return recentGames; } private set { SetField(ref recentGames, value); } }
         public bool HasSessions { get { return RecentSessions.Count > 0; } }
         public bool HasFilteredGames { get { return FilteredTopGames.Count > 0; } }
+        public bool HasFavoriteGames { get { return FavoriteGames.Count > 0; } }
         public bool IsPeriodLoading { get { return isPeriodLoading; } private set { SetField(ref isPeriodLoading, value); } }
         public PlaytimePeriod SelectedPlaytimePeriod
         {
@@ -142,6 +145,7 @@ namespace ActivityDashboard.UI
                 CoverPath = string.IsNullOrEmpty(game.CoverImage) ? null : api.Database.GetFullFilePath(game.CoverImage),
                 PlaytimeSeconds = game.Playtime,
                 PlayCount = game.PlayCount,
+                IsFavorite = game.Favorite,
                 LastActivity = game.LastActivity,
                 Platforms = game.Platforms == null ? new List<string>() : game.Platforms.Where(platform => platform != null).Select(platform => platform.Name).ToList(),
                 Genres = game.Genres == null ? new List<string>() : game.Genres.Where(genre => genre != null).Select(genre => genre.Name).ToList()
@@ -155,6 +159,7 @@ namespace ActivityDashboard.UI
             TotalLaunches = metrics.TotalLaunches.ToString();
             RecentGames = metrics.GamesActiveLast30Days.ToString();
             Replace(TopGames, metrics.TopGames);
+            Replace(FavoriteGames, metrics.FavoriteGames);
             Replace(Platforms, metrics.Platforms);
             Replace(Genres, metrics.Genres);
             Replace(RecentSessions, metrics.RecentSessions);
@@ -164,6 +169,7 @@ namespace ActivityDashboard.UI
             PeakHour = busiestHour == null || busiestHour.DurationSeconds == 0 ? "No data yet" : string.Format("{0:D2}:00 — {1}", busiestHour.Hour, DurationFormatter.Format(busiestHour.DurationSeconds));
             TrackedPlaytime = DurationFormatter.Format(metrics.HourlyActivity.Aggregate(0UL, (total, hour) => total + hour.DurationSeconds));
             OnPropertyChanged("HasSessions");
+            OnPropertyChanged("HasFavoriteGames");
         }
 
         private async void UpdateFilteredGamesAsync()

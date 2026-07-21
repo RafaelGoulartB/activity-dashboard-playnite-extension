@@ -16,9 +16,9 @@ namespace ActivityDashboard.Models
         public string CoverPath { get; set; }
         public ulong PlaytimeSeconds { get; set; }
         public ulong PlayCount { get; set; }
+        public bool IsFavorite { get; set; }
         public DateTime? LastActivity { get; set; }
         public List<string> Platforms { get; set; }
         public List<string> Genres { get; set; }
     }
 }
-

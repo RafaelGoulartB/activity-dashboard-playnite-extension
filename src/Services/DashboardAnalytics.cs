@@ -26,6 +26,11 @@ namespace ActivityDashboard.Services
                 .Take(20)
                 .Select(game => new RankedItem { Name = game.Name, CoverPath = game.CoverPath, DurationSeconds = game.PlaytimeSeconds })
                 .ToList());
+            metrics.FavoriteGames = gameList.Where(game => game.IsFavorite)
+                .OrderByDescending(game => game.PlaytimeSeconds)
+                .ThenBy(game => game.Name)
+                .Select(game => new RankedItem { Name = game.Name, CoverPath = game.CoverPath, DurationSeconds = game.PlaytimeSeconds })
+                .ToList();
             metrics.Platforms = BuildBreakdown(gameList, game => game.Platforms, "Uncategorized platform");
             metrics.Genres = BuildBreakdown(gameList, game => game.Genres, "Uncategorized genre");
             metrics.RecentSessions = sessionList.OrderByDescending(session => session.EndedAtLocal).Take(10).ToList();

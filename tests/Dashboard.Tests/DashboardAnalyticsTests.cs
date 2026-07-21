@@ -22,7 +22,7 @@ namespace Dashboard.Tests
         {
             var games = new[]
             {
-                new GameSnapshot { Name = "Alpha", PlaytimeSeconds = 7200, PlayCount = 3, LastActivity = new DateTime(2026, 7, 19), Platforms = new List<string> { "Steam" }, Genres = new List<string> { "RPG", "Action" } },
+                new GameSnapshot { Name = "Alpha", PlaytimeSeconds = 7200, PlayCount = 3, IsFavorite = true, LastActivity = new DateTime(2026, 7, 19), Platforms = new List<string> { "Steam" }, Genres = new List<string> { "RPG", "Action" } },
                 new GameSnapshot { Name = "Beta", PlaytimeSeconds = 3600, PlayCount = 0, Platforms = new List<string>(), Genres = new List<string>() }
             };
 
@@ -33,6 +33,8 @@ namespace Dashboard.Tests
             Assert.AreEqual(3UL, metrics.TotalLaunches);
             Assert.AreEqual(1, metrics.GamesActiveLast30Days);
             Assert.AreEqual("Alpha", metrics.TopGames[0].Name);
+            Assert.AreEqual(1, metrics.FavoriteGames.Count);
+            Assert.AreEqual("Alpha", metrics.FavoriteGames[0].Name);
             Assert.AreEqual(3600UL, metrics.Platforms.Single(item => item.Name == "Uncategorized platform").DurationSeconds);
             Assert.AreEqual(3600UL, metrics.Genres.Single(item => item.Name == "Uncategorized genre").DurationSeconds);
         }
