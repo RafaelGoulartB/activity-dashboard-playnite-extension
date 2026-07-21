@@ -67,6 +67,91 @@
             <Setter Property="Padding" Value="9,8" />
             <Setter Property="Margin" Value="0,0,0,7" />
         </Style>
+
+        <Style x:Key="RankingProgress" TargetType="ProgressBar">
+            <Setter Property="Height" Value="4" />
+            <Setter Property="Maximum" Value="100" />
+            <Setter Property="Background" Value="#FF293248" />
+            <Setter Property="Foreground" Value="#FF7697F7" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid ClipToBounds="True">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="2" />
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="2" HorizontalAlignment="Left" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PeriodPickerItem" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="#FFDCE5F5" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemSurface" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}" Margin="3,2">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="#FF303D59" /><Setter Property="Foreground" Value="#FFFFFFFF" /></Trigger>
+                            <Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="#FF34476D" /><Setter Property="Foreground" Value="#FFC9D7FF" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PeriodPicker" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#FFF2F6FF" />
+            <Setter Property="Background" Value="#FF20283A" />
+            <Setter Property="BorderBrush" Value="#FF465875" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="MinWidth" Value="176" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource PeriodPickerItem}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="PickerButton" Focusable="False" ClickMode="Press" Foreground="#FFF2F6FF" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="PickerSurface" Background="#FF20283A" BorderBrush="#FF465875" BorderThickness="1" CornerRadius="8">
+                                            <Grid Margin="12,0,10,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="22" /></Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding SelectedPlaytimePeriod.Name}" Foreground="#FFF2F6FF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Grid.Column="1" Text="&#x2304;" Foreground="#FF91A4C2" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,-3,0,0" />
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="PickerSurface" Property="Background" Value="#FF29344B" /><Setter TargetName="PickerSurface" Property="BorderBrush" Value="#FF647A9F" /></Trigger>
+                                            <Trigger Property="IsChecked" Value="True"><Setter TargetName="PickerSurface" Property="Background" Value="#FF29344B" /><Setter TargetName="PickerSurface" Property="BorderBrush" Value="#FF7895C8" /></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Grid MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,5,0,0">
+                                    <Border Background="#FF171E2D" BorderBrush="#FF465875" BorderThickness="1" CornerRadius="9" Padding="3" Effect="{StaticResource PanelShadow}">
+                                        <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                            <ItemsPresenter />
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False"><Setter TargetName="PART_Popup" Property="MinHeight" Value="36" /></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="PickerButton" Property="Opacity" Value="0.45" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -215,42 +300,89 @@
                 </Border>
                 </local:AdaptiveTwoColumnPanel>
 
-                <!-- Library insights -->
-                <Grid Margin="0,0,0,18">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.35*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource SectionSurface}" Margin="0,0,14,0">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,15"><TextBlock Style="{StaticResource SectionTitle}" Text="Most played games" /><TextBlock DockPanel.Dock="Right" Text="TOP 20" Foreground="#FF82A9FF" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></DockPanel>
-                            <ScrollViewer Height="295" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-                                <ItemsControl ItemsSource="{Binding TopGames}">
-                                    <ItemsControl.ItemTemplate><DataTemplate>
-                                        <Border Style="{StaticResource RankRow}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="35" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                                            <Border Width="30" Height="36" CornerRadius="7" ClipToBounds="True"><Image Source="{Binding CoverPath}" Stretch="UniformToFill" /></Border>
-                                            <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#FFF2F5FB" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="9,0,8,0" />
-                                            <TextBlock Grid.Column="2" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF9FBBFF" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                        </Grid></Border>
-                                    </DataTemplate></ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="1" Style="{StaticResource SectionSurface}" Margin="0,0,14,0">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,15"><TextBlock Style="{StaticResource SectionTitle}" Text="Platforms" /><TextBlock DockPanel.Dock="Right" Text="BY PLAYTIME" Foreground="#FF71DEC4" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></DockPanel>
-                            <ItemsControl ItemsSource="{Binding Platforms}"><ItemsControl.ItemTemplate><DataTemplate>
-                                <Border Style="{StaticResource RankRow}"><DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF9ADFCF" FontWeight="SemiBold" /><TextBlock Text="{Binding Name}" Foreground="#FFF2F5FB" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" /></DockPanel></Border>
-                            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="2" Style="{StaticResource SectionSurface}">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,15"><TextBlock Style="{StaticResource SectionTitle}" Text="Genres" /><TextBlock DockPanel.Dock="Right" Text="BY PLAYTIME" Foreground="#FFC6A0FF" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></DockPanel>
-                            <ItemsControl ItemsSource="{Binding Genres}"><ItemsControl.ItemTemplate><DataTemplate>
-                                <Border Style="{StaticResource RankRow}"><DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FFD2B7FF" FontWeight="SemiBold" /><TextBlock Text="{Binding Name}" Foreground="#FFF2F5FB" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" /></DockPanel></Border>
-                            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-                        </StackPanel>
-                    </Border>
-                </Grid>
+                <!-- Most played games -->
+                <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Background="#326D83F5" BorderBrush="#507E94F8" BorderThickness="1" CornerRadius="5" Padding="8,3" Margin="0,0,10,0">
+                                        <TextBlock Text="LIBRARY RANKING" Foreground="#FFDDE6FF" FontWeight="Bold" FontSize="10" />
+                                    </Border>
+                                    <TextBlock Text="TOP 20" Foreground="#FF82A9FF" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Text="Most played games" Foreground="#FFF7FAFF" FontSize="25" FontWeight="SemiBold" Margin="0,9,0,0" />
+                                <TextBlock Text="Compare your all-time favorites with the games you have played most in a specific period." Foreground="#FFAAB6CC" FontSize="13" Margin="0,6,0,0" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Border Grid.Column="1" Background="#3A1D2639" BorderBrush="#36556A87" BorderThickness="1" CornerRadius="10" Padding="13,9" VerticalAlignment="Bottom" Margin="24,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="PERIOD" Foreground="#FF92A5C0" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <ComboBox Style="{StaticResource PeriodPicker}" ItemsSource="{Binding PlaytimePeriods}" SelectedItem="{Binding SelectedPlaytimePeriod, Mode=TwoWay}" DisplayMemberPath="Name" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <local:AdaptiveTwoColumnPanel Breakpoint="1120" Gap="16">
+                            <Border Background="#681B2233" BorderBrush="#3651647F" BorderThickness="1" CornerRadius="12" Padding="16">
+                                <StackPanel>
+                                    <DockPanel Margin="2,0,2,14">
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FF7997F8" Margin="0,0,7,0" /><TextBlock Text="ALL-TIME DATA" Foreground="#FF92A5C6" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                        <StackPanel><TextBlock Text="Library favorites" Foreground="#FFF5F8FF" FontSize="16" FontWeight="SemiBold" /><TextBlock Text="Total playtime reported by Playnite" Foreground="#FF8FA2BD" FontSize="11" Margin="0,3,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <ScrollViewer Height="390" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                        <ItemsControl ItemsSource="{Binding TopGames}"><ItemsControl.ItemTemplate><DataTemplate>
+                                            <Border Style="{StaticResource RankRow}">
+                                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="44" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                    <Border Width="25" Height="25" CornerRadius="13" Background="#FF29344D" VerticalAlignment="Center"><TextBlock Text="{Binding Rank}" Foreground="#FFB9C7DF" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                                    <Border Grid.Column="1" Width="38" Height="48" CornerRadius="7" ClipToBounds="True" Background="#FF252D3F"><Image Source="{Binding CoverPath}" Stretch="UniformToFill" /></Border>
+                                                    <Grid Grid.Column="2" Margin="10,2,12,2"><Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                                        <TextBlock Text="{Binding Name}" Foreground="#FFF2F5FB" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                                        <ProgressBar Grid.Row="1" Style="{StaticResource RankingProgress}" Value="{Binding RelativePercentage}" Margin="0,7,0,0" />
+                                                    </Grid>
+                                                    <TextBlock Grid.Column="3" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF9FBBFF" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#681B2233" BorderBrush="#3651647F" BorderThickness="1" CornerRadius="12" Padding="16">
+                                <StackPanel>
+                                    <DockPanel Margin="2,0,2,14">
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FF49C9AA" Margin="0,0,7,0" /><TextBlock Text="{Binding SelectedPlaytimePeriod.Name}" Foreground="#FF8DCCBE" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                        <StackPanel><TextBlock Text="Most played in this period" Foreground="#FFF5F8FF" FontSize="16" FontWeight="SemiBold" /><TextBlock Text="Playtime tracked by Activity Dashboard" Foreground="#FF8FA2BD" FontSize="11" Margin="0,3,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <Grid Height="390">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                            <ItemsControl ItemsSource="{Binding FilteredTopGames}"><ItemsControl.ItemTemplate><DataTemplate>
+                                                <Border Style="{StaticResource RankRow}">
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition Width="44" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                        <Border Width="25" Height="25" CornerRadius="13" Background="#FF243E3D" VerticalAlignment="Center"><TextBlock Text="{Binding Rank}" Foreground="#FFA6EEDC" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                                        <Border Grid.Column="1" Width="38" Height="48" CornerRadius="7" ClipToBounds="True" Background="#FF252D3F"><Image Source="{Binding CoverPath}" Stretch="UniformToFill" /></Border>
+                                                        <Grid Grid.Column="2" Margin="10,2,12,2"><Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                                            <TextBlock Text="{Binding Name}" Foreground="#FFF2F5FB" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                                            <ProgressBar Grid.Row="1" Style="{StaticResource RankingProgress}" Foreground="#FF49C9AA" Value="{Binding RelativePercentage}" Margin="0,7,0,0" />
+                                                        </Grid>
+                                                        <TextBlock Grid.Column="3" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF85DEC9" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                                        </ScrollViewer>
+                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasFilteredGames}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                                            <Border Width="46" Height="46" Background="#322FC6A4" CornerRadius="23"><TextBlock Text="&#x25F7;" Foreground="#FF83DCC7" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                            <TextBlock Text="No tracked playtime in this period" Foreground="#FFF0F4FA" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,0" />
+                                            <TextBlock Text="Choose a longer period or launch a game through Playnite." Foreground="#FF91A3BC" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                                        </StackPanel>
+                                        <TextBlock Text="Updating ranking..." Foreground="#FF8CE7D2" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,8" Visibility="{Binding IsPeriodLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </local:AdaptiveTwoColumnPanel>
+                    </StackPanel>
+                </Border>
 
                 <!-- Recent activity -->
                 <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,12">
@@ -269,7 +401,6 @@
                         </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
                     </StackPanel>
                 </Border>
-                <TextBlock Text="A game assigned to multiple platforms or genres contributes its playtime to each classification." Foreground="#709EB1C5" FontSize="11" Margin="4,0,0,12" />
             </StackPanel>
         </ScrollViewer>
     </Grid>

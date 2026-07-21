@@ -52,6 +52,56 @@ namespace Dashboard.Tests
             Assert.AreEqual(20, metrics.TopGames.Count);
             Assert.AreEqual("Game 25", metrics.TopGames[0].Name);
             Assert.AreEqual("Game 06", metrics.TopGames[19].Name);
+            Assert.AreEqual(1, metrics.TopGames[0].Rank);
+            Assert.AreEqual(100d, metrics.TopGames[0].RelativePercentage);
+        }
+
+        [Test]
+        public void BuildTopGamesForPeriod_AggregatesTrackedSessionsAndClipsThePeriodBoundary()
+        {
+            var alphaId = Guid.NewGuid();
+            var betaId = Guid.NewGuid();
+            var games = new[]
+            {
+                new GameSnapshot { Id = alphaId, Name = "Alpha", CoverPath = "alpha.jpg" },
+                new GameSnapshot { Id = betaId, Name = "Beta", CoverPath = "beta.jpg" }
+            };
+            var sessions = new[]
+            {
+                new ActivitySession { GameId = alphaId, GameName = "Old Alpha", StartedAtLocal = new DateTimeOffset(2026, 7, 20, 18, 0, 0, TimeSpan.Zero), DurationSeconds = 7200 },
+                new ActivitySession { GameId = betaId, GameName = "Beta", StartedAtLocal = new DateTimeOffset(2026, 7, 13, 23, 30, 0, TimeSpan.Zero), DurationSeconds = 3600 },
+                new ActivitySession { GameId = betaId, GameName = "Beta", StartedAtLocal = new DateTimeOffset(2026, 7, 1, 10, 0, 0, TimeSpan.Zero), DurationSeconds = 3600 },
+                new ActivitySession { GameId = alphaId, GameName = "Alpha", StartedAtLocal = new DateTimeOffset(2026, 7, 20, 20, 0, 0, TimeSpan.Zero), DurationSeconds = 0 }
+            };
+
+            var ranking = new DashboardAnalytics().BuildTopGamesForPeriod(games, sessions, new DateTime(2026, 7, 20), 7);
+
+            Assert.AreEqual(2, ranking.Count);
+            Assert.AreEqual("Alpha", ranking[0].Name);
+            Assert.AreEqual("alpha.jpg", ranking[0].CoverPath);
+            Assert.AreEqual(7200UL, ranking[0].DurationSeconds);
+            Assert.AreEqual(1, ranking[0].Rank);
+            Assert.AreEqual(1800UL, ranking[1].DurationSeconds);
+            Assert.AreEqual(25d, ranking[1].RelativePercentage);
+        }
+
+        [Test]
+        public void BuildTopGamesForPeriod_AllTrackedTimeIncludesOlderSessions()
+        {
+            var gameId = Guid.NewGuid();
+            var session = new ActivitySession
+            {
+                GameId = gameId,
+                GameName = "Alpha",
+                StartedAtLocal = new DateTimeOffset(2020, 1, 1, 12, 0, 0, TimeSpan.Zero),
+                DurationSeconds = 600
+            };
+
+            var ranking = new DashboardAnalytics().BuildTopGamesForPeriod(new GameSnapshot[0], new[] { session }, new DateTime(2026, 7, 20), 0);
+
+            Assert.AreEqual(1, ranking.Count);
+            Assert.AreEqual("Alpha", ranking[0].Name);
+            Assert.AreEqual(600UL, ranking[0].DurationSeconds);
         }
 
         [Test]

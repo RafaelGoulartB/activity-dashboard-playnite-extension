@@ -37,9 +37,11 @@ namespace ActivityDashboard.Models
 
     public class RankedItem
     {
+        public int Rank { get; set; }
         public string Name { get; set; }
         public string CoverPath { get; set; }
         public ulong DurationSeconds { get; set; }
+        public double RelativePercentage { get; set; }
     }
 
     public class HourlyActivity

@@ -20,16 +20,68 @@ namespace ActivityDashboard.Services
             metrics.GamesActiveLast30Days = gameList.Count(game => game.LastActivity.HasValue && game.LastActivity.Value.Date >= last30Days);
 
             metrics.HeatmapDays = BuildHeatmap(sessionList, todayLocal);
-            metrics.TopGames = gameList.OrderByDescending(game => game.PlaytimeSeconds)
+            metrics.TopGames = AddRanking(gameList.Where(game => game.PlaytimeSeconds > 0)
+                .OrderByDescending(game => game.PlaytimeSeconds)
                 .ThenBy(game => game.Name)
                 .Take(20)
                 .Select(game => new RankedItem { Name = game.Name, CoverPath = game.CoverPath, DurationSeconds = game.PlaytimeSeconds })
-                .ToList();
+                .ToList());
             metrics.Platforms = BuildBreakdown(gameList, game => game.Platforms, "Uncategorized platform");
             metrics.Genres = BuildBreakdown(gameList, game => game.Genres, "Uncategorized genre");
             metrics.RecentSessions = sessionList.OrderByDescending(session => session.EndedAtLocal).Take(10).ToList();
             metrics.HourlyActivity = BuildHourlyActivity(sessionList);
             return metrics;
+        }
+
+        public List<RankedItem> BuildTopGamesForPeriod(IEnumerable<GameSnapshot> games, IEnumerable<ActivitySession> sessions, DateTime todayLocal, int periodDays)
+        {
+            var gameList = (games ?? Enumerable.Empty<GameSnapshot>()).ToList();
+            var gameById = gameList.Where(game => game.Id != Guid.Empty).GroupBy(game => game.Id).ToDictionary(group => group.Key, group => group.First());
+            var totals = new Dictionary<string, RankedItem>(StringComparer.OrdinalIgnoreCase);
+            var periodStart = periodDays > 0 ? todayLocal.Date.AddDays(1 - periodDays) : DateTime.MinValue;
+            var periodEnd = periodDays > 0 ? todayLocal.Date.AddDays(1) : DateTime.MaxValue;
+
+            foreach (var session in sessions ?? Enumerable.Empty<ActivitySession>())
+            {
+                if (session == null || session.DurationSeconds == 0)
+                {
+                    continue;
+                }
+
+                // ElapsedSeconds is authoritative. Derive the end from the recorded duration so
+                // malformed or stale lifecycle timestamps cannot change the playtime total.
+                var sessionStart = session.StartedAtLocal.DateTime;
+                var maximumDuration = (DateTime.MaxValue - sessionStart).TotalSeconds;
+                var safeDuration = Math.Min((double)session.DurationSeconds, maximumDuration);
+                var sessionEnd = sessionStart.AddSeconds(safeDuration);
+                var overlapStart = sessionStart > periodStart ? sessionStart : periodStart;
+                var overlapEnd = sessionEnd < periodEnd ? sessionEnd : periodEnd;
+                if (overlapEnd <= overlapStart)
+                {
+                    continue;
+                }
+
+                var identity = session.GameId != Guid.Empty ? "id:" + session.GameId.ToString("D") : "name:" + (session.GameName ?? string.Empty);
+                RankedItem item;
+                if (!totals.TryGetValue(identity, out item))
+                {
+                    GameSnapshot game;
+                    gameById.TryGetValue(session.GameId, out game);
+                    item = new RankedItem
+                    {
+                        Name = game == null ? (string.IsNullOrWhiteSpace(session.GameName) ? "Unknown game" : session.GameName) : game.Name,
+                        CoverPath = game == null ? null : game.CoverPath
+                    };
+                    totals[identity] = item;
+                }
+
+                item.DurationSeconds += (ulong)Math.Ceiling((overlapEnd - overlapStart).TotalSeconds);
+            }
+
+            return AddRanking(totals.Values.OrderByDescending(item => item.DurationSeconds)
+                .ThenBy(item => item.Name)
+                .Take(20)
+                .ToList());
         }
 
         public List<HourlyActivity> BuildHourlyActivity(IEnumerable<ActivitySession> sessions)
@@ -107,6 +159,18 @@ namespace ActivityDashboard.Services
                 .ThenBy(item => item.Name)
                 .Take(5)
                 .ToList();
+        }
+
+        private static List<RankedItem> AddRanking(List<RankedItem> items)
+        {
+            var maximum = items.Count == 0 ? 0UL : items[0].DurationSeconds;
+            for (var index = 0; index < items.Count; index++)
+            {
+                items[index].Rank = index + 1;
+                items[index].RelativePercentage = maximum == 0 ? 0 : (double)items[index].DurationSeconds / maximum * 100;
+            }
+
+            return items;
         }
 
         private static void AddSessionToDays(ActivitySession session, DateTime firstDate, DateTime lastDate, IDictionary<DateTime, HeatmapDay> totals)
