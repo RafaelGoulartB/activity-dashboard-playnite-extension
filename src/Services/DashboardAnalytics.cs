@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using ActivityDashboard.Models;
 
@@ -7,6 +8,22 @@ namespace ActivityDashboard.Services
 {
     public class DashboardAnalytics
     {
+        private static readonly string[] MonthLabels =
+        {
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        };
+
+        private static readonly Tuple<ulong, ulong, string>[] SessionLengthBuckets =
+        {
+            Tuple.Create(0UL, 600UL, "< 10 min"),
+            Tuple.Create(600UL, 1800UL, "10–29 min"),
+            Tuple.Create(1800UL, 3600UL, "30–59 min"),
+            Tuple.Create(3600UL, 7200UL, "1–2 h"),
+            Tuple.Create(7200UL, 14400UL, "2–4 h"),
+            Tuple.Create(14400UL, ulong.MaxValue, "4 h +")
+        };
+
         public DashboardMetrics Build(IEnumerable<GameSnapshot> games, IEnumerable<ActivitySession> sessions, DateTime todayLocal)
         {
             var gameList = (games ?? Enumerable.Empty<GameSnapshot>()).ToList();
@@ -26,10 +43,36 @@ namespace ActivityDashboard.Services
                 .Take(20)
                 .Select(game => new RankedItem { Name = game.Name, CoverPath = game.CoverPath, DurationSeconds = game.PlaytimeSeconds })
                 .ToList());
+            metrics.FavoriteGames = gameList.Where(game => game.IsFavorite)
+                .OrderByDescending(game => game.PlaytimeSeconds)
+                .ThenBy(game => game.Name)
+                .Select(game => new RankedItem { Name = game.Name, CoverPath = game.CoverPath, DurationSeconds = game.PlaytimeSeconds })
+                .ToList();
             metrics.Platforms = BuildBreakdown(gameList, game => game.Platforms, "Uncategorized platform");
             metrics.Genres = BuildBreakdown(gameList, game => game.Genres, "Uncategorized genre");
             metrics.RecentSessions = sessionList.OrderByDescending(session => session.EndedAtLocal).Take(10).ToList();
             metrics.HourlyActivity = BuildHourlyActivity(sessionList);
+
+            var validSessions = sessionList.Where(session => session != null && session.DurationSeconds > 0).ToList();
+            metrics.TotalSessions = validSessions.Count;
+            metrics.TrackedDurationSeconds = validSessions.Aggregate(0UL, (total, session) => total + session.DurationSeconds);
+            metrics.AverageSessionSeconds = validSessions.Count == 0 ? 0UL : metrics.TrackedDurationSeconds / (ulong)validSessions.Count;
+            metrics.MonthlyBuckets = BuildMonthlyBuckets(sessionList, todayLocal);
+            metrics.WeekdayBreakdown = BuildWeekdayBreakdown(sessionList);
+            metrics.SessionLengthDistribution = BuildSessionLengthDistribution(validSessions);
+            metrics.Streak = BuildStreak(metrics.HeatmapDays, todayLocal);
+            metrics.LongestSession = BuildLongestSession(validSessions);
+            metrics.FirstSessionDate = validSessions.Count == 0
+                ? (DateTime?)null
+                : validSessions.Min(session => session.StartedAtLocal.DateTime.Date);
+            metrics.ActiveDaysLast30 = metrics.HeatmapDays.Count(day => day.Date >= last30Days && day.DurationSeconds > 0);
+            metrics.WeekdaySeconds = metrics.WeekdayBreakdown
+                .Where(bucket => bucket.Day != DayOfWeek.Saturday && bucket.Day != DayOfWeek.Sunday)
+                .Aggregate(0UL, (total, bucket) => total + bucket.DurationSeconds);
+            metrics.WeekendSeconds = metrics.WeekdayBreakdown
+                .Where(bucket => bucket.Day == DayOfWeek.Saturday || bucket.Day == DayOfWeek.Sunday)
+                .Aggregate(0UL, (total, bucket) => total + bucket.DurationSeconds);
+
             return metrics;
         }
 
@@ -48,8 +91,6 @@ namespace ActivityDashboard.Services
                     continue;
                 }
 
-                // ElapsedSeconds is authoritative. Derive the end from the recorded duration so
-                // malformed or stale lifecycle timestamps cannot change the playtime total.
                 var sessionStart = session.StartedAtLocal.DateTime;
                 var maximumDuration = (DateTime.MaxValue - sessionStart).TotalSeconds;
                 var safeDuration = Math.Min((double)session.DurationSeconds, maximumDuration);
@@ -141,9 +182,203 @@ namespace ActivityDashboard.Services
             return totals.Values.OrderBy(day => day.Date).ToList();
         }
 
+        public StreakInfo BuildStreak(IList<HeatmapDay> heatmapDays, DateTime todayLocal)
+        {
+            var info = new StreakInfo();
+            if (heatmapDays == null || heatmapDays.Count == 0)
+            {
+                return info;
+            }
+
+            var activeByDate = new HashSet<DateTime>(heatmapDays.Where(day => day.DurationSeconds > 0).Select(day => day.Date));
+            info.LastActiveDate = activeByDate.Count == 0 ? (DateTime?)null : activeByDate.Max();
+
+            var cursor = todayLocal.Date;
+            while (activeByDate.Contains(cursor))
+            {
+                info.CurrentStreak++;
+                cursor = cursor.AddDays(-1);
+            }
+
+            var ordered = activeByDate.OrderBy(date => date).ToList();
+            var currentRun = 0;
+            var previous = DateTime.MinValue;
+            foreach (var date in ordered)
+            {
+                if (previous != DateTime.MinValue && date == previous.AddDays(1))
+                {
+                    currentRun++;
+                }
+                else
+                {
+                    currentRun = 1;
+                }
+
+                if (currentRun > info.LongestStreak)
+                {
+                    info.LongestStreak = currentRun;
+                }
+
+                previous = date;
+            }
+
+            return info;
+        }
+
+        public List<MonthlyBucket> BuildMonthlyBuckets(IEnumerable<ActivitySession> sessions, DateTime todayLocal)
+        {
+            var buckets = new List<MonthlyBucket>();
+            for (var offset = 11; offset >= 0; offset--)
+            {
+                var month = todayLocal.Date.AddMonths(-offset);
+                buckets.Add(new MonthlyBucket
+                {
+                    Year = month.Year,
+                    Month = month.Month,
+                    Label = MonthLabels[month.Month - 1] + " " + (month.Year % 100).ToString("D2", CultureInfo.InvariantCulture)
+                });
+            }
+
+            var indexByKey = buckets.ToDictionary(bucket => bucket.Year * 12 + (bucket.Month - 1));
+            foreach (var session in sessions ?? Enumerable.Empty<ActivitySession>())
+            {
+                if (session == null || session.DurationSeconds == 0)
+                {
+                    continue;
+                }
+
+                var sessionStart = session.StartedAtLocal.DateTime;
+                var sessionEnd = session.EndedAtLocal.DateTime;
+                if (sessionEnd <= sessionStart)
+                {
+                    sessionEnd = sessionStart.AddSeconds(session.DurationSeconds);
+                }
+
+                var cursor = sessionStart;
+                while (cursor < sessionEnd)
+                {
+                    var monthEnd = new DateTime(cursor.Year, cursor.Month, 1).AddMonths(1);
+                    var segmentEnd = sessionEnd < monthEnd ? sessionEnd : monthEnd;
+                    var key = cursor.Year * 12 + (cursor.Month - 1);
+                    MonthlyBucket bucket;
+                    if (indexByKey.TryGetValue(key, out bucket))
+                    {
+                        bucket.DurationSeconds += (ulong)Math.Ceiling((segmentEnd - cursor).TotalSeconds);
+                        bucket.SessionCount += 1;
+                    }
+
+                    cursor = segmentEnd;
+                }
+            }
+
+            return buckets;
+        }
+
+        public List<WeekdayBucket> BuildWeekdayBreakdown(IEnumerable<ActivitySession> sessions)
+        {
+            var labels = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+            var shortLabels = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+            var buckets = new List<WeekdayBucket>();
+            for (var day = 0; day < 7; day++)
+            {
+                buckets.Add(new WeekdayBucket
+                {
+                    Order = day,
+                    Day = (DayOfWeek)day,
+                    Label = labels[day],
+                    ShortLabel = shortLabels[day]
+                });
+            }
+
+            foreach (var session in sessions ?? Enumerable.Empty<ActivitySession>())
+            {
+                if (session == null || session.DurationSeconds == 0)
+                {
+                    continue;
+                }
+
+                var day = session.StartedAtLocal.DateTime.DayOfWeek;
+                buckets[(int)day].DurationSeconds += session.DurationSeconds;
+                buckets[(int)day].SessionCount += 1;
+            }
+
+            var max = buckets.Max(bucket => bucket.DurationSeconds);
+            foreach (var bucket in buckets)
+            {
+                bucket.RelativePercentage = max == 0 ? 0 : (double)bucket.DurationSeconds / max * 100;
+            }
+
+            return buckets;
+        }
+
+        public List<SessionLengthBucket> BuildSessionLengthDistribution(IList<ActivitySession> sessions)
+        {
+            var buckets = new List<SessionLengthBucket>();
+            for (var i = 0; i < SessionLengthBuckets.Length; i++)
+            {
+                var range = SessionLengthBuckets[i];
+                buckets.Add(new SessionLengthBucket
+                {
+                    Label = range.Item3,
+                    Order = i,
+                    MinSeconds = range.Item1,
+                    MaxSeconds = range.Item2
+                });
+            }
+
+            foreach (var session in sessions ?? Enumerable.Empty<ActivitySession>())
+            {
+                if (session == null || session.DurationSeconds == 0)
+                {
+                    continue;
+                }
+
+                SessionLengthBucket matched = null;
+                for (var i = 0; i < buckets.Count; i++)
+                {
+                    if (session.DurationSeconds >= buckets[i].MinSeconds && session.DurationSeconds < buckets[i].MaxSeconds)
+                    {
+                        matched = buckets[i];
+                        break;
+                    }
+                }
+
+                if (matched == null)
+                {
+                    matched = buckets[buckets.Count - 1];
+                }
+
+                matched.Count += 1;
+            }
+
+            var max = buckets.Max(bucket => bucket.Count);
+            foreach (var bucket in buckets)
+            {
+                bucket.RelativePercentage = max == 0 ? 0 : (double)bucket.Count / max * 100;
+            }
+
+            return buckets;
+        }
+
+        private static LongestSessionInfo BuildLongestSession(IList<ActivitySession> validSessions)
+        {
+            if (validSessions == null || validSessions.Count == 0)
+            {
+                return null;
+            }
+
+            var longest = validSessions.OrderByDescending(session => session.DurationSeconds).First();
+            return new LongestSessionInfo
+            {
+                GameName = string.IsNullOrWhiteSpace(longest.GameName) ? "Unknown game" : longest.GameName,
+                DurationSeconds = longest.DurationSeconds,
+                StartedAtLocal = longest.StartedAtLocal
+            };
+        }
+
         private static List<RankedItem> BuildBreakdown(IEnumerable<GameSnapshot> games, Func<GameSnapshot, IEnumerable<string>> selector, string emptyLabel)
         {
-            return games.SelectMany(game =>
+            var grouped = games.SelectMany(game =>
                 {
                     var values = selector(game) == null ? new List<string>() : selector(game).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().ToList();
                     if (values.Count == 0)
@@ -159,6 +394,15 @@ namespace ActivityDashboard.Services
                 .ThenBy(item => item.Name)
                 .Take(5)
                 .ToList();
+
+            var maximum = grouped.Count == 0 ? 0UL : grouped[0].DurationSeconds;
+            for (var index = 0; index < grouped.Count; index++)
+            {
+                grouped[index].Rank = index + 1;
+                grouped[index].RelativePercentage = maximum == 0 ? 0 : (double)grouped[index].DurationSeconds / maximum * 100;
+            }
+
+            return grouped;
         }
 
         private static List<RankedItem> AddRanking(List<RankedItem> items)
@@ -180,8 +424,6 @@ namespace ActivityDashboard.Services
                 return;
             }
 
-            // Stored timestamps carry the user's local offset. DateTime preserves that wall-clock
-            // calendar date instead of converting it to the machine's current time zone.
             var sessionStart = session.StartedAtLocal.DateTime;
             var sessionEnd = session.EndedAtLocal.DateTime;
             if (sessionEnd <= sessionStart)

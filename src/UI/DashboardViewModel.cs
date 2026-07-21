@@ -25,7 +25,24 @@ namespace ActivityDashboard.UI
         private string recentGames;
         private string peakHour;
         private string trackedPlaytime;
+        private string currentStreakText;
+        private string longestStreakText;
+        private string averageSessionText;
+        private string totalSessionsText;
+        private string activeDaysText;
+        private string longestSessionGame;
+        private string longestSessionDuration;
+        private string longestSessionWhen;
+        private string mostActiveDay;
+        private string weekendRatioText;
+        private string firstSessionText;
+        private string monthlyTotalText;
+        private string monthlyPeakLabel;
+        private int monthlyPeakIndex = -1;
         private ObservableCollection<HourlyActivity> hourlyActivity;
+        private ObservableCollection<MonthlyBucket> monthlyBuckets;
+        private ObservableCollection<WeekdayBucket> weekdayBreakdown;
+        private ObservableCollection<SessionLengthBucket> sessionLengthDistribution;
         private PlaytimePeriod selectedPlaytimePeriod;
         private bool isPeriodLoading;
         private bool hasLoadedData;
@@ -39,17 +56,34 @@ namespace ActivityDashboard.UI
             this.store = store;
             HeatmapCells = new ObservableCollection<HeatmapCell>();
             TopGames = new ObservableCollection<RankedItem>();
+            FavoriteGames = new ObservableCollection<RankedItem>();
             FilteredTopGames = new ObservableCollection<RankedItem>();
             Platforms = new ObservableCollection<RankedItem>();
             Genres = new ObservableCollection<RankedItem>();
             RecentSessions = new ObservableCollection<ActivitySession>();
             HourlyActivity = new ObservableCollection<HourlyActivity>();
+            MonthlyBuckets = new ObservableCollection<MonthlyBucket>();
+            WeekdayBreakdown = new ObservableCollection<WeekdayBucket>();
+            SessionLengthDistribution = new ObservableCollection<SessionLengthBucket>();
             PeakHour = "No data yet";
             TrackedPlaytime = "0min";
             TotalPlaytime = "—";
             GamesPlayed = "—";
             TotalLaunches = "—";
             RecentGames = "—";
+            CurrentStreakText = "0 days";
+            LongestStreakText = "0 days";
+            AverageSessionText = "—";
+            TotalSessionsText = "0";
+            ActiveDaysText = "0 / 30";
+            LongestSessionGame = "—";
+            LongestSessionDuration = "—";
+            LongestSessionWhen = "No tracked sessions yet";
+            MostActiveDay = "—";
+            WeekendRatioText = "—";
+            FirstSessionText = "Not tracked yet";
+            MonthlyTotalText = "0min";
+            MonthlyPeakLabel = "No data yet";
             PlaytimePeriods = new ObservableCollection<PlaytimePeriod>
             {
                 new PlaytimePeriod("Last 7 days", 7),
@@ -65,12 +99,16 @@ namespace ActivityDashboard.UI
 
         public ObservableCollection<HeatmapCell> HeatmapCells { get; private set; }
         public ObservableCollection<RankedItem> TopGames { get; private set; }
+        public ObservableCollection<RankedItem> FavoriteGames { get; private set; }
         public ObservableCollection<RankedItem> FilteredTopGames { get; private set; }
         public ObservableCollection<PlaytimePeriod> PlaytimePeriods { get; private set; }
         public ObservableCollection<RankedItem> Platforms { get; private set; }
         public ObservableCollection<RankedItem> Genres { get; private set; }
         public ObservableCollection<ActivitySession> RecentSessions { get; private set; }
         public ObservableCollection<HourlyActivity> HourlyActivity { get { return hourlyActivity; } private set { SetField(ref hourlyActivity, value); } }
+        public ObservableCollection<MonthlyBucket> MonthlyBuckets { get { return monthlyBuckets; } private set { SetField(ref monthlyBuckets, value); } }
+        public ObservableCollection<WeekdayBucket> WeekdayBreakdown { get { return weekdayBreakdown; } private set { SetField(ref weekdayBreakdown, value); } }
+        public ObservableCollection<SessionLengthBucket> SessionLengthDistribution { get { return sessionLengthDistribution; } private set { SetField(ref sessionLengthDistribution, value); } }
 
         public bool IsLoading { get { return isLoading; } private set { SetField(ref isLoading, value); } }
         public string ErrorMessage { get { return errorMessage; } private set { SetField(ref errorMessage, value); } }
@@ -80,6 +118,12 @@ namespace ActivityDashboard.UI
         public string RecentGames { get { return recentGames; } private set { SetField(ref recentGames, value); } }
         public bool HasSessions { get { return RecentSessions.Count > 0; } }
         public bool HasFilteredGames { get { return FilteredTopGames.Count > 0; } }
+        public bool HasFavoriteGames { get { return FavoriteGames.Count > 0; } }
+        public bool HasPlatforms { get { return Platforms.Count > 0; } }
+        public bool HasGenres { get { return Genres.Count > 0; } }
+        public bool HasMonthlyData { get { return MonthlyBuckets != null && MonthlyBuckets.Any(bucket => bucket.DurationSeconds > 0); } }
+        public bool HasWeekdayData { get { return WeekdayBreakdown != null && WeekdayBreakdown.Any(bucket => bucket.DurationSeconds > 0); } }
+        public bool HasSessionLengthData { get { return SessionLengthDistribution != null && SessionLengthDistribution.Any(bucket => bucket.Count > 0); } }
         public bool IsPeriodLoading { get { return isPeriodLoading; } private set { SetField(ref isPeriodLoading, value); } }
         public PlaytimePeriod SelectedPlaytimePeriod
         {
@@ -94,6 +138,21 @@ namespace ActivityDashboard.UI
         }
         public string PeakHour { get { return peakHour; } private set { SetField(ref peakHour, value); } }
         public string TrackedPlaytime { get { return trackedPlaytime; } private set { SetField(ref trackedPlaytime, value); } }
+        public string CurrentStreakText { get { return currentStreakText; } private set { SetField(ref currentStreakText, value); } }
+        public string LongestStreakText { get { return longestStreakText; } private set { SetField(ref longestStreakText, value); } }
+        public string AverageSessionText { get { return averageSessionText; } private set { SetField(ref averageSessionText, value); } }
+        public string TotalSessionsText { get { return totalSessionsText; } private set { SetField(ref totalSessionsText, value); } }
+        public string ActiveDaysText { get { return activeDaysText; } private set { SetField(ref activeDaysText, value); } }
+        public string LongestSessionGame { get { return longestSessionGame; } private set { SetField(ref longestSessionGame, value); } }
+        public string LongestSessionDuration { get { return longestSessionDuration; } private set { SetField(ref longestSessionDuration, value); } }
+        public string LongestSessionWhen { get { return longestSessionWhen; } private set { SetField(ref longestSessionWhen, value); } }
+        public string MostActiveDay { get { return mostActiveDay; } private set { SetField(ref mostActiveDay, value); } }
+        public string WeekendRatioText { get { return weekendRatioText; } private set { SetField(ref weekendRatioText, value); } }
+        public string FirstSessionText { get { return firstSessionText; } private set { SetField(ref firstSessionText, value); } }
+        public string MonthlyTotalText { get { return monthlyTotalText; } private set { SetField(ref monthlyTotalText, value); } }
+        public string MonthlyPeakLabel { get { return monthlyPeakLabel; } private set { SetField(ref monthlyPeakLabel, value); } }
+        public int MonthlyPeakIndex { get { return monthlyPeakIndex; } private set { SetField(ref monthlyPeakIndex, value); } }
+        public string DashboardGreeting { get { return BuildGreeting(); } }
 
         public async Task RefreshAsync()
         {
@@ -142,6 +201,7 @@ namespace ActivityDashboard.UI
                 CoverPath = string.IsNullOrEmpty(game.CoverImage) ? null : api.Database.GetFullFilePath(game.CoverImage),
                 PlaytimeSeconds = game.Playtime,
                 PlayCount = game.PlayCount,
+                IsFavorite = game.Favorite,
                 LastActivity = game.LastActivity,
                 Platforms = game.Platforms == null ? new List<string>() : game.Platforms.Where(platform => platform != null).Select(platform => platform.Name).ToList(),
                 Genres = game.Genres == null ? new List<string>() : game.Genres.Where(genre => genre != null).Select(genre => genre.Name).ToList()
@@ -155,15 +215,81 @@ namespace ActivityDashboard.UI
             TotalLaunches = metrics.TotalLaunches.ToString();
             RecentGames = metrics.GamesActiveLast30Days.ToString();
             Replace(TopGames, metrics.TopGames);
+            Replace(FavoriteGames, metrics.FavoriteGames);
             Replace(Platforms, metrics.Platforms);
             Replace(Genres, metrics.Genres);
             Replace(RecentSessions, metrics.RecentSessions);
             Replace(HeatmapCells, BuildCells(metrics.HeatmapDays));
             HourlyActivity = new ObservableCollection<HourlyActivity>(metrics.HourlyActivity);
+            Replace(MonthlyBuckets, metrics.MonthlyBuckets);
+            Replace(WeekdayBreakdown, metrics.WeekdayBreakdown);
+            Replace(SessionLengthDistribution, metrics.SessionLengthDistribution);
+
             var busiestHour = metrics.HourlyActivity.OrderByDescending(hour => hour.DurationSeconds).ThenBy(hour => hour.Hour).FirstOrDefault();
             PeakHour = busiestHour == null || busiestHour.DurationSeconds == 0 ? "No data yet" : string.Format("{0:D2}:00 — {1}", busiestHour.Hour, DurationFormatter.Format(busiestHour.DurationSeconds));
             TrackedPlaytime = DurationFormatter.Format(metrics.HourlyActivity.Aggregate(0UL, (total, hour) => total + hour.DurationSeconds));
+
+            TotalSessionsText = metrics.TotalSessions.ToString();
+            AverageSessionText = metrics.TotalSessions == 0 ? "—" : DurationFormatter.Format(metrics.AverageSessionSeconds);
+            CurrentStreakText = FormatStreak(metrics.Streak == null ? 0 : metrics.Streak.CurrentStreak);
+            LongestStreakText = FormatStreak(metrics.Streak == null ? 0 : metrics.Streak.LongestStreak);
+            ActiveDaysText = metrics.ActiveDaysLast30 + " / 30";
+            FirstSessionText = metrics.FirstSessionDate.HasValue ? metrics.FirstSessionDate.Value.ToString("MMM dd, yyyy") : "Not tracked yet";
+
+            if (metrics.LongestSession == null)
+            {
+                LongestSessionGame = "—";
+                LongestSessionDuration = "—";
+                LongestSessionWhen = "No tracked sessions yet";
+            }
+            else
+            {
+                LongestSessionGame = metrics.LongestSession.GameName;
+                LongestSessionDuration = DurationFormatter.Format(metrics.LongestSession.DurationSeconds);
+                LongestSessionWhen = "Played on " + metrics.LongestSession.StartedAtLocal.ToString("MMM dd, yyyy");
+            }
+
+            var mostActive = metrics.WeekdayBreakdown.OrderByDescending(bucket => bucket.DurationSeconds).FirstOrDefault();
+            MostActiveDay = mostActive == null || mostActive.DurationSeconds == 0 ? "—" : mostActive.Label;
+
+            var totalSeconds = metrics.WeekdaySeconds + metrics.WeekendSeconds;
+            if (totalSeconds == 0)
+            {
+                WeekendRatioText = "—";
+            }
+            else
+            {
+                var weekendPct = (double)metrics.WeekendSeconds / totalSeconds * 100;
+                var weekdayPct = 100.0 - weekendPct;
+                WeekendRatioText = string.Format("{0:0}% weekend · {1:0}% weekday", weekendPct, weekdayPct);
+            }
+
+            var monthlyTotal = metrics.MonthlyBuckets.Aggregate(0UL, (total, bucket) => total + bucket.DurationSeconds);
+            MonthlyTotalText = DurationFormatter.Format(monthlyTotal);
+            var monthlyPeak = metrics.MonthlyBuckets
+                .Select((bucket, index) => new { bucket, index })
+                .OrderByDescending(item => item.bucket.DurationSeconds)
+                .ThenBy(item => item.index)
+                .FirstOrDefault();
+            if (monthlyPeak == null || monthlyPeak.bucket.DurationSeconds == 0)
+            {
+                MonthlyPeakLabel = "No data yet";
+                MonthlyPeakIndex = -1;
+            }
+            else
+            {
+                MonthlyPeakLabel = monthlyPeak.bucket.Label + " · " + DurationFormatter.Format(monthlyPeak.bucket.DurationSeconds);
+                MonthlyPeakIndex = monthlyPeak.index;
+            }
+
             OnPropertyChanged("HasSessions");
+            OnPropertyChanged("HasFavoriteGames");
+            OnPropertyChanged("HasPlatforms");
+            OnPropertyChanged("HasGenres");
+            OnPropertyChanged("HasMonthlyData");
+            OnPropertyChanged("HasWeekdayData");
+            OnPropertyChanged("HasSessionLengthData");
+            OnPropertyChanged("DashboardGreeting");
         }
 
         private async void UpdateFilteredGamesAsync()
@@ -198,6 +324,25 @@ namespace ActivityDashboard.UI
         {
             Replace(FilteredTopGames, games);
             OnPropertyChanged("HasFilteredGames");
+        }
+
+        private static string FormatStreak(int days)
+        {
+            if (days <= 0)
+            {
+                return "0 days";
+            }
+
+            return days + (days == 1 ? " day" : " days");
+        }
+
+        private static string BuildGreeting()
+        {
+            var hour = DateTime.Now.Hour;
+            if (hour < 5) return "Late-night sessions ahead";
+            if (hour < 12) return "Good morning, player";
+            if (hour < 18) return "Good afternoon, player";
+            return "Good evening, player";
         }
 
         private static IEnumerable<HeatmapCell> BuildCells(IList<HeatmapDay> days)

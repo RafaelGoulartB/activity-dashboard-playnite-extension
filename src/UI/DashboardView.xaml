@@ -8,9 +8,25 @@
         <local:DurationToTextConverter x:Key="DurationToTextConverter" />
         <local:HeatmapHeightConverter x:Key="HeatmapHeightConverter" />
         <local:HeatmapWidthConverter x:Key="HeatmapWidthConverter" />
+        <local:DistributionFillConverter x:Key="DistributionFillConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DropShadowEffect x:Key="PanelShadow" BlurRadius="18" ShadowDepth="5" Opacity="0.32" Color="#000000" />
+
+        <LinearGradientBrush x:Key="AccentStreakBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFE9A34D" Offset="0" />
+            <GradientStop Color="#FFE06BC6" Offset="1" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AccentActivityBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF6D83F5" Offset="0" />
+            <GradientStop Color="#FF45C9A6" Offset="1" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AccentRecordsBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FF45C9A6" Offset="0" />
+            <GradientStop Color="#FF6D83F5" Offset="1" />
+        </LinearGradientBrush>
 
         <Style x:Key="SectionSurface" TargetType="Border">
             <Setter Property="Background" Value="#E9161B2A" />
@@ -30,6 +46,15 @@
             <Setter Property="MinWidth" Value="190" />
             <Setter Property="Margin" Value="0,0,14,14" />
             <Setter Property="Effect" Value="{StaticResource PanelShadow}" />
+        </Style>
+
+        <Style x:Key="HighlightCard" TargetType="Border">
+            <Setter Property="Background" Value="#E91B2236" />
+            <Setter Property="BorderBrush" Value="#36465778" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="18" />
+            <Setter Property="Margin" Value="0,0,12,12" />
         </Style>
 
         <Style x:Key="SectionTitle" TargetType="TextBlock">
@@ -61,6 +86,39 @@
             </Setter>
         </Style>
 
+        <Style x:Key="NavPill" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFD7E2F3" />
+            <Setter Property="Background" Value="#331E2638" />
+            <Setter Property="BorderBrush" Value="#33465778" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14" Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="Glyph" Text="{TemplateBinding Tag}" FontSize="13" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" />
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#FF2A344B" />
+                                <Setter TargetName="Surface" Property="BorderBrush" Value="#FF7895C8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#FF34476D" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="RankRow" TargetType="Border">
             <Setter Property="Background" Value="#521E2638" />
             <Setter Property="CornerRadius" Value="8" />
@@ -79,6 +137,23 @@
                         <Grid ClipToBounds="True">
                             <Border Background="{TemplateBinding Background}" CornerRadius="2" />
                             <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="2" HorizontalAlignment="Left" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DistributionProgress" TargetType="ProgressBar">
+            <Setter Property="Height" Value="6" />
+            <Setter Property="Maximum" Value="100" />
+            <Setter Property="Background" Value="#FF293248" />
+            <Setter Property="Foreground" Value="#FF6D83F5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid ClipToBounds="True">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="3" />
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="3" HorizontalAlignment="Left" />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -168,11 +243,14 @@
         <Ellipse Width="620" Height="400" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-220,-160,0" IsHitTestVisible="False" Opacity="0.16">
             <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#FF2BC5A3" Offset="0" /><GradientStop Color="#002BC5A3" Offset="1" /></RadialGradientBrush></Ellipse.Fill>
         </Ellipse>
+        <Ellipse Width="540" Height="540" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-220,160" IsHitTestVisible="False" Opacity="0.14">
+            <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#FFE06BC6" Offset="0" /><GradientStop Color="#00E06BC6" Offset="1" /></RadialGradientBrush></Ellipse.Fill>
+        </Ellipse>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+        <ScrollViewer x:Name="RootScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
             <StackPanel Margin="46,34,46,46">
                 <!-- Hero -->
-                <Border CornerRadius="18" BorderBrush="#386D75A5" BorderThickness="1" Margin="0,0,0,22" Padding="28,24" Effect="{StaticResource PanelShadow}">
+                <Border CornerRadius="18" BorderBrush="#386D75A5" BorderThickness="1" Margin="0,0,0,16" Padding="28,24" Effect="{StaticResource PanelShadow}">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#ED202743" Offset="0" />
@@ -187,118 +265,451 @@
                                 <Border Background="#2F77E9D4" CornerRadius="4" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="LIBRARY" FontWeight="Bold" FontSize="10" Foreground="#FFE2FFFA" /></Border>
                                 <TextBlock Text="ACTIVITY OVERVIEW" Foreground="#AFC5CBDC" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center" />
                             </StackPanel>
-                            <TextBlock Text="Activity Dashboard" FontSize="31" FontWeight="SemiBold" Foreground="#FFF9FBFF" />
+                            <TextBlock Text="{Binding DashboardGreeting}" FontSize="28" FontWeight="SemiBold" Foreground="#FFF9FBFF" />
                             <TextBlock Text="Track your gaming habits, playtime and progress throughout the year." Foreground="#C9D7DDEC" FontSize="14" Margin="0,6,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <Border Background="#2B6D83F5" BorderBrush="#506D83F5" BorderThickness="1" CornerRadius="14" Padding="12,5" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x2726;" Foreground="#FFAFC3FF" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Foreground="#FFDCE5F5" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center">
+                                            <Run Text="Streak: " /><Run Text="{Binding CurrentStreakText, Mode=OneWay}" Foreground="#FFE9A34D" FontWeight="Bold" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="#2B45C9A6" BorderBrush="#5045C9A6" BorderThickness="1" CornerRadius="14" Padding="12,5" Margin="0,0,8,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x25CF;" Foreground="#FF8DDFC8" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Foreground="#FFDCE5F5" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center">
+                                            <Run Text="Sessions: " /><Run Text="{Binding TotalSessionsText, Mode=OneWay}" Foreground="#FF8DDFC8" FontWeight="Bold" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                                <Border Background="#2BE9A34D" BorderBrush="#50E9A34D" BorderThickness="1" CornerRadius="14" Padding="12,5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#x25B6;" Foreground="#FFFFD79C" FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Foreground="#FFDCE5F5" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center">
+                                            <Run Text="Avg: " /><Run Text="{Binding AverageSessionText, Mode=OneWay}" Foreground="#FFFFD79C" FontWeight="Bold" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
-                        <Button Grid.Column="1" Style="{StaticResource RefreshButton}" Click="Refresh_Click" VerticalAlignment="Center">
+                        <Button Grid.Column="1" Style="{StaticResource RefreshButton}" Click="Refresh_Click" VerticalAlignment="Top">
                             <StackPanel Orientation="Horizontal"><TextBlock Text="↻" FontSize="18" Margin="0,-2,7,0" /><TextBlock Text="Refresh data" FontWeight="SemiBold" /></StackPanel>
                         </Button>
                     </Grid>
                 </Border>
 
+                <!-- Anchor navigation -->
+                <Border Background="#1A0F1626" BorderBrush="#222E3D5C" BorderThickness="1" CornerRadius="12" Padding="10,8" Margin="0,0,0,22">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="OverviewNav" Style="{StaticResource NavPill}" Tag="&#x25A6;" Click="ScrollToOverview">
+                            <TextBlock Text="Overview" />
+                        </Button>
+                        <Button x:Name="ActivityNav" Style="{StaticResource NavPill}" Tag="&#x2630;" Click="ScrollToActivity">
+                            <TextBlock Text="Activity" />
+                        </Button>
+                        <Button x:Name="LibraryNav" Style="{StaticResource NavPill}" Tag="&#x25C7;" Click="ScrollToLibrary">
+                            <TextBlock Text="Library" />
+                        </Button>
+                        <Button x:Name="SessionsNav" Style="{StaticResource NavPill}" Tag="&#x29C9;" Click="ScrollToSessions">
+                            <TextBlock Text="Sessions" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+
                 <TextBlock Text="Loading Playnite data..." Foreground="#FF9DF1D5" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="4,0,0,12" />
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="#FFFF9C9C" TextWrapping="Wrap" Margin="4,0,0,12" />
 
-                <!-- Adaptive activity visualizations -->
-                <local:AdaptiveTwoColumnPanel Margin="0,0,0,18" Breakpoint="1500" Gap="18">
-                <!-- Heatmap and metrics -->
-                <StackPanel>
-                <Border x:Name="HeatmapSection" Style="{StaticResource SectionSurface}">
-                    <Grid>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Style="{StaticResource SectionTitle}" Text="Activity over the last 52 weeks" />
-                            <TextBlock Text="Each square represents tracked playtime for one day." Foreground="#FFAAB6CC" FontSize="12" Margin="0,5,0,0" />
+                <!-- ============================================================ -->
+                <!-- OVERVIEW ANCHOR                                              -->
+                <!-- ============================================================ -->
+                <Border x:Name="OverviewAnchor" Height="1" Margin="0,0,0,-12" />
+
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2,0,0,6">
+                            <Border Background="#2F6D83F5" CornerRadius="4" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="OVERVIEW" FontWeight="Bold" FontSize="10" Foreground="#FFDCE5FF" /></Border>
+                            <TextBlock Text="LIBRARY SNAPSHOT" Foreground="#FFA5B5D2" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center" />
                         </StackPanel>
-                        <Border Grid.Column="1" Background="#2539C9A6" BorderBrush="#4262D6C6" BorderThickness="1" CornerRadius="10" Padding="10,5" VerticalAlignment="Top">
-                            <TextBlock Text="TRACKED SESSIONS" Foreground="#FFACEDE0" FontSize="10" FontWeight="Bold" />
+                        <TextBlock Text="Your library at a glance" Foreground="#FFF7FAFF" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="High-level metrics that summarize the whole Playnite library." Foreground="#FFAAB6CC" FontSize="13" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <local:AdaptiveTwoColumnPanel Margin="0,0,0,18" Breakpoint="1500" Gap="18">
+                    <!-- Heatmap + metrics -->
+                    <StackPanel>
+                        <Border x:Name="HeatmapSection" Style="{StaticResource SectionSurface}">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Activity over the last 52 weeks" />
+                                    <TextBlock Text="Each square represents tracked playtime for one day." Foreground="#FFAAB6CC" FontSize="12" Margin="0,5,0,0" />
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="#2539C9A6" BorderBrush="#4262D6C6" BorderThickness="1" CornerRadius="10" Padding="10,5" VerticalAlignment="Top">
+                                    <TextBlock Text="TRACKED SESSIONS" Foreground="#FFACEDE0" FontSize="10" FontWeight="Bold" />
+                                </Border>
+
+                                <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" Margin="0,22,0,16" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                    <Grid Width="{Binding ActualWidth, ElementName=HeatmapSection, Converter={StaticResource HeatmapWidthConverter}}" HorizontalAlignment="Center">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="34" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                        <Grid Grid.Column="0">
+                                            <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="MON" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="2" Text="WED" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="4" Text="FRI" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <ItemsControl Grid.Column="1" ItemsSource="{Binding HeatmapCells}" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}, Converter={StaticResource HeatmapHeightConverter}}">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="7" Columns="52" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate><DataTemplate>
+                                                <Border Margin="2" Background="{Binding Background}" ToolTip="{Binding Tooltip}" CornerRadius="3" BorderBrush="#1AFFFFFF" BorderThickness="1" />
+                                            </DataTemplate></ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </ScrollViewer>
+
+                                <DockPanel Grid.Row="2" Grid.ColumnSpan="2">
+                                    <TextBlock Text="The heatmap starts recording after the extension is installed." Foreground="#809EB1C5" FontSize="11" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                                        <TextBlock Text="Less" Foreground="#FFAAB6CC" FontSize="11" VerticalAlignment="Center" Margin="0,0,7,0" />
+                                        <Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF363B4A" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF165C44" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF168258" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF23AB6E" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF4BD889" />
+                                        <TextBlock Text="More" Foreground="#FFAAB6CC" FontSize="11" VerticalAlignment="Center" Margin="7,0,0,0" />
+                                    </StackPanel>
+                                </DockPanel>
+                            </Grid>
                         </Border>
 
-                        <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" Margin="0,22,0,16" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                            <Grid Width="{Binding ActualWidth, ElementName=HeatmapSection, Converter={StaticResource HeatmapWidthConverter}}" HorizontalAlignment="Center">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="34" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0">
-                                    <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="MON" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="2" Text="WED" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Row="4" Text="FRI" Foreground="#758FA0B9" FontSize="9" VerticalAlignment="Center" />
+                        <Grid Margin="0,18,0,0">
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource MetricCard}" Margin="0,0,14,14">
+                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="TOTAL PLAYTIME" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalPlaytime}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                                    <Border Grid.Column="1" Width="38" Height="38" Background="#355E79F5" CornerRadius="10"><TextBlock Text="&#x25F7;" FontSize="21" Foreground="#FFD9E3FF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
                                 </Grid>
-                                <ItemsControl Grid.Column="1" ItemsSource="{Binding HeatmapCells}" Height="{Binding ActualWidth, RelativeSource={RelativeSource Self}, Converter={StaticResource HeatmapHeightConverter}}">
-                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="7" Columns="52" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate><DataTemplate>
-                                        <Border Margin="2" Background="{Binding Background}" ToolTip="{Binding Tooltip}" CornerRadius="3" BorderBrush="#1AFFFFFF" BorderThickness="1" />
-                                    </DataTemplate></ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Grid>
-                        </ScrollViewer>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0,0,0,14">
+                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="GAMES PLAYED" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding GamesPlayed}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                                    <Border Grid.Column="1" Width="38" Height="38" Background="#3545C9A6" CornerRadius="10"><TextBlock Text="&#x25C6;" FontSize="17" Foreground="#FFD6FFF4" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="1" Style="{StaticResource MetricCard}" Margin="0,0,14,0">
+                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="GAME LAUNCHES" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalLaunches}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                                    <Border Grid.Column="1" Width="38" Height="38" Background="#35E9A34D" CornerRadius="10"><TextBlock Text="&#x25B6;" FontSize="16" Foreground="#FFFFEDCF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0">
+                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="ACTIVE IN 30 DAYS" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding RecentGames}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
+                                    <Border Grid.Column="1" Width="38" Height="38" Background="#35CC60B5" CornerRadius="10"><TextBlock Text="&#x2726;" FontSize="19" Foreground="#FFFFD9F5" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
 
-                        <DockPanel Grid.Row="2" Grid.ColumnSpan="2">
-                            <TextBlock Text="The heatmap starts recording after the extension is installed." Foreground="#809EB1C5" FontSize="11" />
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
-                                <TextBlock Text="Less" Foreground="#FFAAB6CC" FontSize="11" VerticalAlignment="Center" Margin="0,0,7,0" />
-                                <Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF363B4A" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF165C44" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF168258" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF23AB6E" /><Border Width="13" Height="13" Margin="2" CornerRadius="3" Background="#FF4BD889" />
-                                <TextBlock Text="More" Foreground="#FFAAB6CC" FontSize="11" VerticalAlignment="Center" Margin="7,0,0,0" />
+                    <!-- Hourly radial activity chart -->
+                    <Border Style="{StaticResource SectionSurface}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="0.8*" /><ColumnDefinition Width="1.2*" /></Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Margin="8,8,26,8">
+                                <Border Background="#2B8A66E8" BorderBrush="#5A8E7BFF" BorderThickness="1" CornerRadius="7" Padding="10,5" HorizontalAlignment="Left" Margin="0,0,0,16">
+                                    <TextBlock Text="DAILY PATTERN" Foreground="#FFD8E3FF" FontSize="10" FontWeight="Bold" />
+                                </Border>
+                                <TextBlock Text="Your rhythm throughout the day" Foreground="#FFF7FAFF" FontSize="25" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="Discover which hours you most often launch games from Playnite." Foreground="#FFAFBDD1" FontSize="14" LineHeight="21" TextWrapping="Wrap" Margin="0,10,0,24" />
+                                <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,0,10">
+                                    <StackPanel><TextBlock Text="MOST ACTIVE HOUR" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding PeakHour}" Foreground="#FFE6A7FF" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
+                                </Border>
+                                <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15">
+                                    <StackPanel><TextBlock Text="TRACKED PLAYTIME" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TrackedPlaytime}" Foreground="#FF8CE7D2" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
+                                </Border>
+                                <StackPanel Orientation="Horizontal" Margin="0,22,0,0"><Border Width="10" Height="10" Background="#FF4CBCE8" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Late night" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FF9B73DF" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Daytime" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FFE06BC6" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Evening" Foreground="#FF9EB0C8" FontSize="11" /></StackPanel>
                             </StackPanel>
-                        </DockPanel>
-                    </Grid>
-                </Border>
-
-                <Grid Margin="0,18,0,0">
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                    <Border Style="{StaticResource MetricCard}" Margin="0,0,14,14">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="TOTAL PLAYTIME" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalPlaytime}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#355E79F5" CornerRadius="10"><TextBlock Text="&#x25F7;" FontSize="21" Foreground="#FFD9E3FF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                            <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border Width="496" Height="496" Background="#2810172A" BorderBrush="#274B5E7A" BorderThickness="1" CornerRadius="248" />
+                                <local:HourlyActivityChart Width="496" Height="496" ItemsSource="{Binding HourlyActivity}" />
+                            </Grid>
                         </Grid>
                     </Border>
-                    <Border Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0,0,0,14">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="GAMES PLAYED" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding GamesPlayed}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#3545C9A6" CornerRadius="10"><TextBlock Text="&#x25C6;" FontSize="17" Foreground="#FFD6FFF4" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Row="1" Style="{StaticResource MetricCard}" Margin="0,0,14,0">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="GAME LAUNCHES" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TotalLaunches}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#35E9A34D" CornerRadius="10"><TextBlock Text="&#x25B6;" FontSize="16" Foreground="#FFFFEDCF" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MetricCard}" Margin="0">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                            <StackPanel><TextBlock Text="ACTIVE IN 30 DAYS" Foreground="#FFAAB6CC" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding RecentGames}" FontSize="25" FontWeight="SemiBold" Foreground="#FFFFFFFF" Margin="0,7,0,0" /></StackPanel>
-                            <Border Grid.Column="1" Width="38" Height="38" Background="#35CC60B5" CornerRadius="10"><TextBlock Text="&#x2726;" FontSize="19" Foreground="#FFFFD9F5" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-                        </Grid>
-                    </Border>
-                </Grid>
-                </StackPanel>
-
-                <!-- Hourly radial activity chart -->
-                <Border Style="{StaticResource SectionSurface}">
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="0.8*" /><ColumnDefinition Width="1.2*" /></Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center" Margin="8,8,26,8">
-                            <Border Background="#2B8A66E8" BorderBrush="#5A8E7BFF" BorderThickness="1" CornerRadius="7" Padding="10,5" HorizontalAlignment="Left" Margin="0,0,0,16">
-                                <TextBlock Text="DAILY PATTERN" Foreground="#FFD8E3FF" FontSize="10" FontWeight="Bold" />
-                            </Border>
-                            <TextBlock Text="Your rhythm throughout the day" Foreground="#FFF7FAFF" FontSize="25" FontWeight="SemiBold" TextWrapping="Wrap" />
-                            <TextBlock Text="Discover which hours you most often launch games from Playnite." Foreground="#FFAFBDD1" FontSize="14" LineHeight="21" TextWrapping="Wrap" Margin="0,10,0,24" />
-                            <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,0,0,10">
-                                <StackPanel><TextBlock Text="MOST ACTIVE HOUR" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding PeakHour}" Foreground="#FFE6A7FF" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
-                            </Border>
-                            <Border Background="#4B1E2638" BorderBrush="#325B6D87" BorderThickness="1" CornerRadius="10" Padding="15">
-                                <StackPanel><TextBlock Text="TRACKED PLAYTIME" Foreground="#FF98A9C2" FontSize="10" FontWeight="Bold" /><TextBlock Text="{Binding TrackedPlaytime}" Foreground="#FF8CE7D2" FontSize="20" FontWeight="SemiBold" Margin="0,5,0,0" /></StackPanel>
-                            </Border>
-                            <StackPanel Orientation="Horizontal" Margin="0,22,0,0"><Border Width="10" Height="10" Background="#FF4CBCE8" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Late night" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FF9B73DF" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Daytime" Foreground="#FF9EB0C8" FontSize="11" Margin="0,0,14,0" /><Border Width="10" Height="10" Background="#FFE06BC6" CornerRadius="5" Margin="0,2,7,0" /><TextBlock Text="Evening" Foreground="#FF9EB0C8" FontSize="11" /></StackPanel>
-                        </StackPanel>
-                        <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Border Width="496" Height="496" Background="#2810172A" BorderBrush="#274B5E7A" BorderThickness="1" CornerRadius="248" />
-                            <local:HourlyActivityChart Width="496" Height="496" ItemsSource="{Binding HourlyActivity}" />
-                        </Grid>
-                    </Grid>
-                </Border>
                 </local:AdaptiveTwoColumnPanel>
+
+                <!-- Highlights grid -->
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2,0,0,6">
+                            <Border Background="#2FE9A34D" CornerRadius="4" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="HIGHLIGHTS" FontWeight="Bold" FontSize="10" Foreground="#FFFFD79C" /></Border>
+                            <TextBlock Text="AT A GLANCE" Foreground="#FFA5B5D2" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="Player highlights" Foreground="#FFF7FAFF" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="Personal records and trends across your tracked sessions." Foreground="#FFAAB6CC" FontSize="13" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <UniformGrid Columns="4" Rows="2" Margin="0,0,0,0">
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2FE9A34D" CornerRadius="8"><TextBlock Text="&#x2726;" Foreground="#FFFFD79C" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="CURRENT STREAK" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="Daily activity" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding CurrentStreakText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,12,0,0" />
+                                    <TextBlock Text="{Binding ActiveDaysText, StringFormat={}{0} active days}" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2FE9A34D" CornerRadius="8"><TextBlock Text="&#x2731;" Foreground="#FFFFD79C" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="LONGEST STREAK" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="All-time record" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding LongestStreakText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,12,0,0" />
+                                    <TextBlock Text="Consecutive active days" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2F45C9A6" CornerRadius="8"><TextBlock Text="&#x29C9;" Foreground="#FF8DDFC8" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="TOTAL SESSIONS" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="Tracked launches" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding TotalSessionsText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,12,0,0" />
+                                    <TextBlock Text="Since the extension was installed" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2F45C9A6" CornerRadius="8"><TextBlock Text="&#x2205;" Foreground="#FF8DDFC8" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="AVERAGE SESSION" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="Mean length" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding AverageSessionText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,12,0,0" />
+                                    <TextBlock Text="Per tracked session" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2F6D83F5" CornerRadius="8"><TextBlock Text="&#x2605;" Foreground="#FFAFC3FF" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="LONGEST SESSION" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="Personal record" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding LongestSessionDuration}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,12,0,0" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding LongestSessionGame}" Foreground="#FFAFC3FF" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding LongestSessionWhen}" Foreground="#FFA5B5D2" FontSize="11" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2F6D83F5" CornerRadius="8"><TextBlock Text="&#x263E;" Foreground="#FFAFC3FF" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="MOST ACTIVE DAY" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="Day of the week" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding MostActiveDay}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,12,0,0" />
+                                    <TextBlock Text="Most tracked playtime" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2FCC60B5" CornerRadius="8"><TextBlock Text="&#x2630;" Foreground="#FFFFD9F5" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="WEEKEND RATIO" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="Sat &amp; Sun share" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding WeekendRatioText}" Foreground="#FFFFFFFF" FontSize="20" FontWeight="SemiBold" Margin="0,12,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="of total tracked time" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource HighlightCard}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Width="32" Height="32" Background="#2FCC60B5" CornerRadius="8"><TextBlock Text="&#x2691;" Foreground="#FFFFD9F5" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                        <StackPanel VerticalAlignment="Center"><TextBlock Text="FIRST TRACKED" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" /><TextBlock Text="History start" Foreground="#FF8395AE" FontSize="10" Margin="0,2,0,0" /></StackPanel>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding FirstSessionText}" Foreground="#FFFFFFFF" FontSize="20" FontWeight="SemiBold" Margin="0,12,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Earliest recorded session" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ============================================================ -->
+                <!-- ACTIVITY ANCHOR                                              -->
+                <!-- ============================================================ -->
+                <Border x:Name="ActivityAnchor" Height="1" Margin="0,0,0,-12" />
+
+                <Grid Margin="0,4,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2,0,0,6">
+                            <Border Background="#2F45C9A6" CornerRadius="4" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="ACTIVITY" FontWeight="Bold" FontSize="10" Foreground="#FF8DDFC8" /></Border>
+                            <TextBlock Text="TRENDS &amp; PATTERNS" Foreground="#FFA5B5D2" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="Trends and patterns" Foreground="#FFF7FAFF" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="Explore how your gaming habits evolve over time." Foreground="#FFAAB6CC" FontSize="13" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <local:AdaptiveTwoColumnPanel Breakpoint="1200" Gap="18" Margin="0,0,0,18">
+                    <!-- Monthly trend -->
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FF6D83F5" Margin="0,0,7,0" /><TextBlock Text="LAST 12 MONTHS" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Monthly playtime" />
+                                    <TextBlock Text="Stacked hours per month across your tracked history." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,4,0,12">
+                                    <TextBlock Text="PEAK MONTH" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" />
+                                    <TextBlock Text="{Binding MonthlyPeakLabel}" Foreground="#FFAFBFFF" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0" />
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="#1A1F2A40" BorderBrush="#30465778" BorderThickness="1" CornerRadius="9" Padding="10,6" VerticalAlignment="Top">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="TOTAL" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,7,0" />
+                                        <TextBlock Text="{Binding MonthlyTotalText}" Foreground="#FFAFBFFF" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                            <local:MonthlyBarsChart Height="240" ItemsSource="{Binding MonthlyBuckets}" HighlightIndex="{Binding MonthlyPeakIndex}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Weekday pattern -->
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FF45C9A6" Margin="0,0,7,0" /><TextBlock Text="WEEKLY PATTERN" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Weekday distribution" />
+                                    <TextBlock Text="Which days of the week do you play the most?" Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding WeekdayBreakdown}" Margin="0,4,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ShortLabel}" Foreground="#FFDFE8F8" FontWeight="SemiBold" FontSize="13" />
+                                                <TextBlock Text="{Binding SessionCount, StringFormat={}{0} sessions}" Foreground="#FFA5B5D2" FontSize="10" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                            <ProgressBar Grid.Column="1" Style="{StaticResource DistributionProgress}" Foreground="{Binding Order, Converter={StaticResource DistributionFillConverter}}" Value="{Binding RelativePercentage}" VerticalAlignment="Center" Margin="10,0" />
+                                            <TextBlock Grid.Column="2" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FFAFDBC6" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="No tracked sessions yet" Foreground="#FFA5B5D2" FontSize="12" HorizontalAlignment="Center" Margin="0,12,0,0">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasWeekdayData}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </local:AdaptiveTwoColumnPanel>
+
+                <local:AdaptiveTwoColumnPanel Breakpoint="1200" Gap="18" Margin="0,0,0,18">
+                    <!-- Session length distribution -->
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FFE06BC6" Margin="0,0,7,0" /><TextBlock Text="SESSION LENGTHS" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Session length distribution" />
+                                    <TextBlock Text="How long your tracked sessions usually last." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding SessionLengthDistribution}" Margin="0,4,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="100" /></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Label}" Foreground="#FFDFE8F8" FontWeight="SemiBold" FontSize="13" />
+                                                <TextBlock Text="{Binding Count, StringFormat={}{0} session(s)}" Foreground="#FFA5B5D2" FontSize="10" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                            <ProgressBar Grid.Column="1" Style="{StaticResource DistributionProgress}" Foreground="{Binding Order, Converter={StaticResource DistributionFillConverter}}" Value="{Binding RelativePercentage}" VerticalAlignment="Center" Margin="10,0" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Count, StringFormat={}{0}x}" Foreground="#FFE4B7D4" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="No tracked sessions yet" Foreground="#FFA5B5D2" FontSize="12" HorizontalAlignment="Center" Margin="0,12,0,0">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasSessionLengthData}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Daily pattern stats -->
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FFE9A34D" Margin="0,0,7,0" /><TextBlock Text="DAILY DETAIL" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Daily pattern" />
+                                    <TextBlock Text="Quick numbers from your last 30 days." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <Grid Margin="0,6,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <Border Style="{StaticResource HighlightCard}" Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="ACTIVE DAYS" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding ActiveDaysText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,0" />
+                                        <TextBlock Text="in the last 30 days" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="1" Style="{StaticResource HighlightCard}" Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="CURRENT STREAK" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding CurrentStreakText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,0" />
+                                        <TextBlock Text="best in a row" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="2" Style="{StaticResource HighlightCard}" Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="LONGEST STREAK" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding LongestStreakText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,0" />
+                                        <TextBlock Text="all-time record" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="3" Style="{StaticResource HighlightCard}" Margin="0">
+                                    <StackPanel>
+                                        <TextBlock Text="AVERAGE SESSION" Foreground="#FFA5B5D2" FontSize="10" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding AverageSessionText}" Foreground="#FFFFFFFF" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,0" />
+                                        <TextBlock Text="per session" Foreground="#FFA5B5D2" FontSize="11" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </local:AdaptiveTwoColumnPanel>
+
+                <!-- ============================================================ -->
+                <!-- LIBRARY ANCHOR                                               -->
+                <!-- ============================================================ -->
+                <Border x:Name="LibraryAnchor" Height="1" Margin="0,0,0,-12" />
+
+                <Grid Margin="0,4,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2,0,0,6">
+                            <Border Background="#2F6D83F5" CornerRadius="4" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="LIBRARY" FontWeight="Bold" FontSize="10" Foreground="#FFDCE5FF" /></Border>
+                            <TextBlock Text="RANKINGS &amp; BREAKDOWN" Foreground="#FFA5B5D2" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="Library rankings" Foreground="#FFF7FAFF" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="Top games, platforms, genres and favourites in your Playnite library." Foreground="#FFAAB6CC" FontSize="13" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
 
                 <!-- Most played games -->
                 <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
@@ -384,7 +795,181 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Recent activity -->
+                <!-- Library breakdown: platforms + genres -->
+                <local:AdaptiveTwoColumnPanel Breakpoint="1200" Gap="18" Margin="0,0,0,18">
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,14">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FF45C9A6" Margin="0,0,7,0" /><TextBlock Text="TOP 5" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Platforms" />
+                                    <TextBlock Text="Playtime aggregated by platform from your library." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding Platforms}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="110" /></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" Foreground="#FFDFE8F8" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                                <ProgressBar Style="{StaticResource DistributionProgress}" Foreground="#FF45C9A6" Value="{Binding RelativePercentage}" Margin="0,6,12,0" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FF8DDFC8" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="No platform data yet" Foreground="#FFA5B5D2" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasPlatforms}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,14">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FFE06BC6" Margin="0,0,7,0" /><TextBlock Text="TOP 5" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Genres" />
+                                    <TextBlock Text="Playtime aggregated by genre from your library." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <ItemsControl ItemsSource="{Binding Genres}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="110" /></Grid.ColumnDefinitions>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" Foreground="#FFDFE8F8" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                                <ProgressBar Style="{StaticResource DistributionProgress}" Foreground="#FFE06BC6" Value="{Binding RelativePercentage}" Margin="0,6,12,0" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FFE4B7D4" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="No genre data yet" Foreground="#FFA5B5D2" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0">
+                                <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasGenres}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </local:AdaptiveTwoColumnPanel>
+
+                <!-- Playnite favorites -->
+                <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,18">
+                            <Border DockPanel.Dock="Right" Background="#32E9A34D" BorderBrush="#55E9A34D" BorderThickness="1" CornerRadius="8" Padding="10,5" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding FavoriteGames.Count, StringFormat={}{0} FAVORITES}" Foreground="#FFFFD79C" FontWeight="Bold" FontSize="10" />
+                            </Border>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#x2605;" Foreground="#FFFFB95E" FontSize="18" Margin="0,-2,8,0" />
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Favorite games" />
+                                </StackPanel>
+                                <TextBlock Text="Games marked as favorites in your Playnite library." Foreground="#FFAAB6CC" FontSize="12" Margin="0,5,0,0" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Grid MinHeight="132">
+                            <ScrollViewer MaxHeight="365" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+                                <ItemsControl ItemsSource="{Binding FavoriteGames}">
+                                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate><DataTemplate>
+                                        <Border Width="275" Height="112" Background="#641E2638" BorderBrush="#34546680" BorderThickness="1" CornerRadius="11" Margin="0,0,11,11" Padding="9" ToolTip="{Binding Name}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="68" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Border Width="62" Height="92" CornerRadius="8" ClipToBounds="True" Background="#FF252D3F" HorizontalAlignment="Left">
+                                                    <Image Source="{Binding CoverPath}" Stretch="UniformToFill" />
+                                                </Border>
+                                                <Grid Grid.Column="1" Margin="11,3,3,3">
+                                                    <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding Name}" Foreground="#FFF4F7FC" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="40" VerticalAlignment="Top" Margin="0,2,8,0" />
+                                                        <TextBlock Grid.Column="1" Text="&#x2605;" Foreground="#FFFFB95E" FontSize="14" VerticalAlignment="Top" />
+                                                    </Grid>
+                                                    <Border Grid.Row="1" Background="#312D3951" CornerRadius="6" Padding="8,5" HorizontalAlignment="Left">
+                                                        <StackPanel Orientation="Horizontal"><TextBlock Text="PLAYTIME" Foreground="#FF8395AE" FontSize="9" FontWeight="Bold" Margin="0,0,7,0" VerticalAlignment="Center" /><TextBlock Text="{Binding DurationSeconds, Converter={StaticResource DurationToTextConverter}}" Foreground="#FFC6D4EB" FontSize="11" FontWeight="SemiBold" /></StackPanel>
+                                                    </Border>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed" /><Style.Triggers><DataTrigger Binding="{Binding HasFavoriteGames}" Value="False"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                                <Border Width="48" Height="48" Background="#32E9A34D" CornerRadius="24"><TextBlock Text="&#x2606;" Foreground="#FFFFC879" FontSize="27" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+                                <TextBlock Text="No favorite games yet" Foreground="#FFF2F5FB" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,0" />
+                                <TextBlock Text="Mark games as favorites in Playnite and refresh the dashboard." Foreground="#FF91A3BC" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ============================================================ -->
+                <!-- SESSIONS ANCHOR                                              -->
+                <!-- ============================================================ -->
+                <Border x:Name="SessionsAnchor" Height="1" Margin="0,0,0,-12" />
+
+                <Grid Margin="0,4,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2,0,0,6">
+                            <Border Background="#2FCC60B5" CornerRadius="4" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="SESSIONS" FontWeight="Bold" FontSize="10" Foreground="#FFFFD9F5" /></Border>
+                            <TextBlock Text="HISTORY &amp; RECORDS" Foreground="#FFA5B5D2" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="Session history" Foreground="#FFF7FAFF" FontSize="22" FontWeight="SemiBold" />
+                        <TextBlock Text="The most recent sessions captured by Activity Dashboard." Foreground="#FFAAB6CC" FontSize="13" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <local:AdaptiveTwoColumnPanel Breakpoint="900" Gap="18" Margin="0,0,0,12">
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FFE9A34D" Margin="0,0,7,0" /><TextBlock Text="PERSONAL RECORD" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Longest session" />
+                                    <TextBlock Text="The single longest tracked session so far." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding LongestSessionGame}" Foreground="#FFFCF1CF" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding LongestSessionWhen}" Foreground="#FFA5B5D2" FontSize="12" Margin="0,6,0,0" />
+                                </StackPanel>
+                                <Border Grid.Column="1" Background="#1A2A344B" BorderBrush="#3FE9A34D" BorderThickness="1" CornerRadius="10" Padding="14,9" VerticalAlignment="Center">
+                                    <StackPanel>
+                                        <TextBlock Text="DURATION" Foreground="#FFA5B5D2" FontSize="9" FontWeight="Bold" />
+                                        <TextBlock Text="{Binding LongestSessionDuration}" Foreground="#FFFFD79C" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SectionSurface}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,12">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Border Width="6" Height="6" CornerRadius="3" Background="#FF6D83F5" Margin="0,0,7,0" /><TextBlock Text="MONTHLY SNAPSHOT" Foreground="#FFA5B5D2" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" /></StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="Recent monthly peak" />
+                                    <TextBlock Text="Your most productive month of the last 12." Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                            <StackPanel Margin="0,4,0,0">
+                                <TextBlock Text="{Binding MonthlyPeakLabel}" Foreground="#FFAFBFFF" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding MonthlyTotalText, StringFormat=Tracked total: {0}}" Foreground="#FFA5B5D2" FontSize="12" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </local:AdaptiveTwoColumnPanel>
+
+                <!-- Recent sessions -->
                 <Border Style="{StaticResource SectionSurface}" Margin="0,0,0,12">
                     <StackPanel>
                         <DockPanel Margin="0,0,0,13"><StackPanel><TextBlock Style="{StaticResource SectionTitle}" Text="Recent sessions" /><TextBlock Text="Latest games launched through Playnite" Foreground="#FFAAB6CC" FontSize="12" Margin="0,4,0,0" /></StackPanel><TextBlock DockPanel.Dock="Right" Text="HISTORY" Foreground="#FF82A9FF" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" /></DockPanel>
