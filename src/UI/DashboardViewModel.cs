@@ -39,6 +39,12 @@ namespace ActivityDashboard.UI
         private string monthlyTotalText;
         private string monthlyPeakLabel;
         private int monthlyPeakIndex = -1;
+        private DashboardSection selectedSection = DashboardSection.Overview;
+        private LastSessionInfo lastSession;
+        private string lastSessionGame;
+        private string lastSessionDuration;
+        private string lastSessionWhen;
+        private bool hasLastSession;
         private ObservableCollection<HourlyActivity> hourlyActivity;
         private ObservableCollection<MonthlyBucket> monthlyBuckets;
         private ObservableCollection<WeekdayBucket> weekdayBreakdown;
@@ -84,6 +90,10 @@ namespace ActivityDashboard.UI
             FirstSessionText = "Not tracked yet";
             MonthlyTotalText = "0min";
             MonthlyPeakLabel = "No data yet";
+            LastSessionGame = "No sessions tracked yet";
+            LastSessionDuration = "—";
+            LastSessionWhen = "Launch a game to get started";
+            HasLastSession = false;
             PlaytimePeriods = new ObservableCollection<PlaytimePeriod>
             {
                 new PlaytimePeriod("Last 7 days", 7),
@@ -152,7 +162,29 @@ namespace ActivityDashboard.UI
         public string MonthlyTotalText { get { return monthlyTotalText; } private set { SetField(ref monthlyTotalText, value); } }
         public string MonthlyPeakLabel { get { return monthlyPeakLabel; } private set { SetField(ref monthlyPeakLabel, value); } }
         public int MonthlyPeakIndex { get { return monthlyPeakIndex; } private set { SetField(ref monthlyPeakIndex, value); } }
-        public string DashboardGreeting { get { return BuildGreeting(); } }
+        public LastSessionInfo LastSession { get { return lastSession; } private set { SetField(ref lastSession, value); } }
+        public string LastSessionGame { get { return lastSessionGame; } private set { SetField(ref lastSessionGame, value); } }
+        public string LastSessionDuration { get { return lastSessionDuration; } private set { SetField(ref lastSessionDuration, value); } }
+        public string LastSessionWhen { get { return lastSessionWhen; } private set { SetField(ref lastSessionWhen, value); } }
+        public bool HasLastSession { get { return hasLastSession; } private set { SetField(ref hasLastSession, value); } }
+        public DashboardSection SelectedSection
+        {
+            get { return selectedSection; }
+            set
+            {
+                if (SetField(ref selectedSection, value))
+                {
+                    OnPropertyChanged("IsOverviewSelected");
+                    OnPropertyChanged("IsActivitySelected");
+                    OnPropertyChanged("IsLibrarySelected");
+                    OnPropertyChanged("IsSessionsSelected");
+                }
+            }
+        }
+        public bool IsOverviewSelected { get { return selectedSection == DashboardSection.Overview; } }
+        public bool IsActivitySelected { get { return selectedSection == DashboardSection.Activity; } }
+        public bool IsLibrarySelected { get { return selectedSection == DashboardSection.Library; } }
+        public bool IsSessionsSelected { get { return selectedSection == DashboardSection.Sessions; } }
 
         public async Task RefreshAsync()
         {
@@ -249,6 +281,23 @@ namespace ActivityDashboard.UI
                 LongestSessionWhen = "Played on " + metrics.LongestSession.StartedAtLocal.ToString("MMM dd, yyyy");
             }
 
+            if (metrics.LastSession == null)
+            {
+                LastSession = null;
+                LastSessionGame = "No sessions tracked yet";
+                LastSessionDuration = "—";
+                LastSessionWhen = "Launch a game through Playnite to get started";
+                HasLastSession = false;
+            }
+            else
+            {
+                LastSession = metrics.LastSession;
+                LastSessionGame = metrics.LastSession.GameName;
+                LastSessionDuration = DurationFormatter.Format(metrics.LastSession.DurationSeconds);
+                LastSessionWhen = FormatLastSessionWhen(metrics.LastSession.EndedAtLocal, DateTime.Today);
+                HasLastSession = true;
+            }
+
             var mostActive = metrics.WeekdayBreakdown.OrderByDescending(bucket => bucket.DurationSeconds).FirstOrDefault();
             MostActiveDay = mostActive == null || mostActive.DurationSeconds == 0 ? "—" : mostActive.Label;
 
@@ -289,7 +338,6 @@ namespace ActivityDashboard.UI
             OnPropertyChanged("HasMonthlyData");
             OnPropertyChanged("HasWeekdayData");
             OnPropertyChanged("HasSessionLengthData");
-            OnPropertyChanged("DashboardGreeting");
         }
 
         private async void UpdateFilteredGamesAsync()
@@ -336,13 +384,23 @@ namespace ActivityDashboard.UI
             return days + (days == 1 ? " day" : " days");
         }
 
-        private static string BuildGreeting()
+        private static string FormatLastSessionWhen(DateTimeOffset endedAtLocal, DateTime todayLocal)
         {
-            var hour = DateTime.Now.Hour;
-            if (hour < 5) return "Late-night sessions ahead";
-            if (hour < 12) return "Good morning, player";
-            if (hour < 18) return "Good afternoon, player";
-            return "Good evening, player";
+            var ended = endedAtLocal.DateTime;
+            var delta = todayLocal.Date - ended.Date;
+            if (delta.Days <= 0)
+            {
+                return "Today at " + ended.ToString("HH:mm");
+            }
+            if (delta.Days == 1)
+            {
+                return "Yesterday at " + ended.ToString("HH:mm");
+            }
+            if (delta.Days < 7)
+            {
+                return ended.DayOfWeek + " at " + ended.ToString("HH:mm");
+            }
+            return ended.ToString("MMM dd, yyyy · HH:mm");
         }
 
         private static IEnumerable<HeatmapCell> BuildCells(IList<HeatmapDay> days)
@@ -414,6 +472,14 @@ namespace ActivityDashboard.UI
     {
         public string Tooltip { get; set; }
         public Brush Background { get; set; }
+    }
+
+    public enum DashboardSection
+    {
+        Overview,
+        Activity,
+        Library,
+        Sessions
     }
 
     public class PlaytimePeriod

@@ -38,6 +38,7 @@ namespace ActivityDashboard.Models
         public List<SessionLengthBucket> SessionLengthDistribution { get; set; }
         public StreakInfo Streak { get; set; }
         public LongestSessionInfo LongestSession { get; set; }
+        public LastSessionInfo LastSession { get; set; }
         public DateTime? FirstSessionDate { get; set; }
         public int ActiveDaysLast30 { get; set; }
         public ulong WeekdaySeconds { get; set; }
@@ -108,7 +109,18 @@ namespace ActivityDashboard.Models
     public class LongestSessionInfo
     {
         public string GameName { get; set; }
+        public string CoverPath { get; set; }
         public ulong DurationSeconds { get; set; }
         public DateTimeOffset StartedAtLocal { get; set; }
+        public DateTimeOffset EndedAtLocal { get; set; }
+    }
+
+    public class LastSessionInfo
+    {
+        public string GameName { get; set; }
+        public string CoverPath { get; set; }
+        public ulong DurationSeconds { get; set; }
+        public DateTimeOffset StartedAtLocal { get; set; }
+        public DateTimeOffset EndedAtLocal { get; set; }
     }
 }

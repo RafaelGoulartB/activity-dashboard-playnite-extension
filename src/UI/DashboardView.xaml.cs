@@ -1,7 +1,6 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using ActivityDashboard.Services;
 using Playnite.SDK;
 
@@ -9,8 +8,6 @@ namespace ActivityDashboard.UI
 {
     public partial class DashboardView : UserControl
     {
-        private const double AnchorOffsetCompensation = 64.0;
-
         private readonly DashboardViewModel viewModel;
 
         public DashboardView(IPlayniteAPI api, IActivityStore store)
@@ -32,61 +29,24 @@ namespace ActivityDashboard.UI
             await viewModel.RefreshAsync();
         }
 
-        private void ScrollToOverview(object sender, RoutedEventArgs e)
+        private void SelectOverview(object sender, RoutedEventArgs e)
         {
-            ScrollTo(OverviewAnchor);
+            viewModel.SelectedSection = DashboardSection.Overview;
         }
 
-        private void ScrollToActivity(object sender, RoutedEventArgs e)
+        private void SelectActivity(object sender, RoutedEventArgs e)
         {
-            ScrollTo(ActivityAnchor);
+            viewModel.SelectedSection = DashboardSection.Activity;
         }
 
-        private void ScrollToLibrary(object sender, RoutedEventArgs e)
+        private void SelectLibrary(object sender, RoutedEventArgs e)
         {
-            ScrollTo(LibraryAnchor);
+            viewModel.SelectedSection = DashboardSection.Library;
         }
 
-        private void ScrollToSessions(object sender, RoutedEventArgs e)
+        private void SelectSessions(object sender, RoutedEventArgs e)
         {
-            ScrollTo(SessionsAnchor);
-        }
-
-        private void ScrollTo(FrameworkElement element)
-        {
-            if (element == null)
-            {
-                return;
-            }
-
-            if (BringAnchorIntoView(element))
-            {
-                return;
-            }
-
-            element.BringIntoView();
-        }
-
-        private bool BringAnchorIntoView(FrameworkElement element)
-        {
-            if (RootScroller == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                RootScroller.UpdateLayout();
-                var transform = element.TransformToAncestor(RootScroller);
-                var point = transform.Transform(new Point(0, 0));
-                var target = Math.Max(0, point.Y - AnchorOffsetCompensation);
-                RootScroller.ScrollToVerticalOffset(target);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            viewModel.SelectedSection = DashboardSection.Sessions;
         }
     }
 }

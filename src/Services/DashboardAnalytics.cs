@@ -28,6 +28,7 @@ namespace ActivityDashboard.Services
         {
             var gameList = (games ?? Enumerable.Empty<GameSnapshot>()).ToList();
             var sessionList = (sessions ?? Enumerable.Empty<ActivitySession>()).ToList();
+            var gameById = gameList.Where(game => game.Id != Guid.Empty).ToDictionary(game => game.Id);
             var metrics = new DashboardMetrics();
 
             metrics.TotalPlaytimeSeconds = gameList.Aggregate(0UL, (total, game) => total + game.PlaytimeSeconds);
@@ -50,7 +51,8 @@ namespace ActivityDashboard.Services
                 .ToList();
             metrics.Platforms = BuildBreakdown(gameList, game => game.Platforms, "Uncategorized platform");
             metrics.Genres = BuildBreakdown(gameList, game => game.Genres, "Uncategorized genre");
-            metrics.RecentSessions = sessionList.OrderByDescending(session => session.EndedAtLocal).Take(10).ToList();
+            var orderedSessions = sessionList.OrderByDescending(session => session.EndedAtLocal).ToList();
+            metrics.RecentSessions = orderedSessions.Take(10).ToList();
             metrics.HourlyActivity = BuildHourlyActivity(sessionList);
 
             var validSessions = sessionList.Where(session => session != null && session.DurationSeconds > 0).ToList();
@@ -61,7 +63,8 @@ namespace ActivityDashboard.Services
             metrics.WeekdayBreakdown = BuildWeekdayBreakdown(sessionList);
             metrics.SessionLengthDistribution = BuildSessionLengthDistribution(validSessions);
             metrics.Streak = BuildStreak(metrics.HeatmapDays, todayLocal);
-            metrics.LongestSession = BuildLongestSession(validSessions);
+            metrics.LongestSession = BuildLongestSession(validSessions, gameById);
+            metrics.LastSession = BuildLastSession(orderedSessions, gameById);
             metrics.FirstSessionDate = validSessions.Count == 0
                 ? (DateTime?)null
                 : validSessions.Min(session => session.StartedAtLocal.DateTime.Date);
@@ -360,7 +363,7 @@ namespace ActivityDashboard.Services
             return buckets;
         }
 
-        private static LongestSessionInfo BuildLongestSession(IList<ActivitySession> validSessions)
+        private static LongestSessionInfo BuildLongestSession(IList<ActivitySession> validSessions, IDictionary<Guid, GameSnapshot> gameById)
         {
             if (validSessions == null || validSessions.Count == 0)
             {
@@ -371,9 +374,45 @@ namespace ActivityDashboard.Services
             return new LongestSessionInfo
             {
                 GameName = string.IsNullOrWhiteSpace(longest.GameName) ? "Unknown game" : longest.GameName,
+                CoverPath = ResolveCoverPath(longest, gameById),
                 DurationSeconds = longest.DurationSeconds,
-                StartedAtLocal = longest.StartedAtLocal
+                StartedAtLocal = longest.StartedAtLocal,
+                EndedAtLocal = longest.EndedAtLocal
             };
+        }
+
+        private static LastSessionInfo BuildLastSession(IList<ActivitySession> orderedSessions, IDictionary<Guid, GameSnapshot> gameById)
+        {
+            if (orderedSessions == null || orderedSessions.Count == 0)
+            {
+                return null;
+            }
+
+            var last = orderedSessions[0];
+            if (last == null || last.DurationSeconds == 0)
+            {
+                return null;
+            }
+
+            return new LastSessionInfo
+            {
+                GameName = string.IsNullOrWhiteSpace(last.GameName) ? "Unknown game" : last.GameName,
+                CoverPath = ResolveCoverPath(last, gameById),
+                DurationSeconds = last.DurationSeconds,
+                StartedAtLocal = last.StartedAtLocal,
+                EndedAtLocal = last.EndedAtLocal
+            };
+        }
+
+        private static string ResolveCoverPath(ActivitySession session, IDictionary<Guid, GameSnapshot> gameById)
+        {
+            if (session == null || session.GameId == Guid.Empty || gameById == null)
+            {
+                return null;
+            }
+
+            GameSnapshot game;
+            return gameById.TryGetValue(session.GameId, out game) ? game.CoverPath : null;
         }
 
         private static List<RankedItem> BuildBreakdown(IEnumerable<GameSnapshot> games, Func<GameSnapshot, IEnumerable<string>> selector, string emptyLabel)
