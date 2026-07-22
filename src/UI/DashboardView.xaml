@@ -9,6 +9,7 @@
         <local:HeatmapHeightConverter x:Key="HeatmapHeightConverter" />
         <local:HeatmapWidthConverter x:Key="HeatmapWidthConverter" />
         <local:DistributionFillConverter x:Key="DistributionFillConverter" />
+        <local:ProgressWidthConverter x:Key="ProgressWidthConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <DropShadowEffect x:Key="PanelShadow" BlurRadius="18" ShadowDepth="5" Opacity="0.32" Color="#000000" />
@@ -115,9 +116,17 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ProgressBar">
-                        <Grid ClipToBounds="True">
+                        <Grid ClipToBounds="True" SnapsToDevicePixels="True">
                             <Border Background="{TemplateBinding Background}" CornerRadius="2" />
-                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="2" HorizontalAlignment="Left" />
+                            <Border Background="{TemplateBinding Foreground}" CornerRadius="2" HorizontalAlignment="Left" SnapsToDevicePixels="True">
+                                <Border.Width>
+                                    <MultiBinding Converter="{StaticResource ProgressWidthConverter}">
+                                        <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </Border.Width>
+                            </Border>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -132,9 +141,17 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ProgressBar">
-                        <Grid ClipToBounds="True">
+                        <Grid ClipToBounds="True" SnapsToDevicePixels="True">
                             <Border Background="{TemplateBinding Background}" CornerRadius="3" />
-                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="3" HorizontalAlignment="Left" />
+                            <Border Background="{TemplateBinding Foreground}" CornerRadius="3" HorizontalAlignment="Left" SnapsToDevicePixels="True">
+                                <Border.Width>
+                                    <MultiBinding Converter="{StaticResource ProgressWidthConverter}">
+                                        <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </Border.Width>
+                            </Border>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
